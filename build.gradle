@@ -1,0 +1,43 @@
+group 'com.irotsoma.cloudbackenc.cloudservice'
+version '0.1-SNAPSHOT'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.2-1'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.springframework:spring-core:4.3.0.RELEASE'
+    compile "org.springframework:spring-context:4.3.0.RELEASE"
+    compile "org.springframework:spring-beans:4.3.0.RELEASE"
+    compile project(':cloudservice')
+    compile "org.jetbrains.kotlin:kotlin-stdlib:1.0.2-1"
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+            url "$rootDir/../cloudbackenc-maven-repo"
+        }
+    }
+}

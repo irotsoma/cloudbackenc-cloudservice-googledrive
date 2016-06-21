@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="googleDriveExtension" class="com.irotsoma.cloudbackenc.cloudservice.DefaultCloudServiceExtension">
+        <constructor-arg ref="googleDriveServiceFactory"/>
+    </bean>
+
+    <bean id="googleDriveServiceFactory" class="com.irotsoma.cloudbackenc.cloudservice.googledrive.GoogleDriveCloudServiceFactory">
+        <property name="authenticationService" ref="googleDriveAuthenticationService"  />
+        <property name="cloudServiceFileIOService" ref="googleDriveFileIOService"/>
+    </bean>
+    <bean id="googleDriveAuthenticationService" class="com.irotsoma.cloudbackenc.cloudservice.googledrive.GoogleDriveAuthenticationService"/>
+    <bean id="googleDriveFileIOService" class="com.irotsoma.cloudbackenc.cloudservice.googledrive.GoogleDriveFileIOService"/>
+</beans>
