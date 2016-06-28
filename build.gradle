@@ -1,6 +1,6 @@
 group 'com.irotsoma.cloudbackenc.cloudservice'
 version '0.1-SNAPSHOT'
-
+def localMavenRepository = "$rootDir/../../cloudbackenc-maven-repo"
 buildscript {
     repositories {
         mavenCentral()
@@ -18,24 +18,17 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven{url localMavenRepository}
 }
 
 dependencies {
     compile 'org.springframework:spring-core:4.3.0.RELEASE'
     compile "org.springframework:spring-context:4.3.0.RELEASE"
     compile "org.springframework:spring-beans:4.3.0.RELEASE"
-    compile project(':cloudservice')
+    compile "com.irotsoma.cloudbackenc:cloudservice:0.1-SNAPSHOT"
     compile "org.jetbrains.kotlin:kotlin-stdlib:1.0.2-1"
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
-
-apply plugin: 'java-library-distribution'
-distributions{
-    main{
-    }
-}
-
-
 
 apply plugin: 'maven-publish'
 publishing {
@@ -46,8 +39,7 @@ publishing {
     }
     repositories {
         maven {
-            // change to point to your repo, e.g. http://my.org/repo
-            url "$rootDir/../cloudbackenc-maven-repo"
+            url localMavenRepository
         }
     }
 }
