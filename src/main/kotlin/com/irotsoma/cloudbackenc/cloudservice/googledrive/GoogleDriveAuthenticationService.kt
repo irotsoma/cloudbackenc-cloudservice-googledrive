@@ -1,8 +1,7 @@
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
-import java.util.logging.Logger
 import com.irotsoma.cloudbackenc.cloudservice.CloudServiceAuthenticationService
-import org.springframework.context.ApplicationContext
+import java.util.logging.Logger
 
 
 /**
@@ -11,7 +10,7 @@ import org.springframework.context.ApplicationContext
  * Authentication service for Google Drive
  */
 
-class GoogleDriveAuthenticationService(override var _applicationContext: ApplicationContext) : CloudServiceAuthenticationService {
+class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
 
     val LOG = Logger.getLogger(this.javaClass.name)
     override fun login(username: String, password: String) : String{

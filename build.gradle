@@ -22,9 +22,6 @@ repositories {
 }
 
 dependencies {
-    compile "org.springframework:spring-core:4.3.0.RELEASE"
-    compile "org.springframework:spring-context:4.3.0.RELEASE"
-    compile "org.springframework:spring-beans:4.3.0.RELEASE"
     //compile project (":cloudservice")
     compile "com.irotsoma.cloudbackenc:cloudservice:0.1-SNAPSHOT"
     compile "org.jetbrains.kotlin:kotlin-stdlib:1.0.3"
