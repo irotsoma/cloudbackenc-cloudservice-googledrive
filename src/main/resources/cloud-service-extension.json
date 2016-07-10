@@ -1,4 +1,5 @@
 {
+  "serviceUUID": "1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375",
   "serviceName": "Google Drive",
   "packageName": "com.irotsoma.cloudbackenc.cloudservice.googledrive",
   "factoryClass": "GoogleDriveCloudServiceFactory"
