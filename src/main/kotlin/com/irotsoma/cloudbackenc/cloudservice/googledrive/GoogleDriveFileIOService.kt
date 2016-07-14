@@ -1,17 +1,18 @@
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import com.irotsoma.cloudbackenc.cloudservice.CloudServiceFileIOService
+import com.irotsoma.cloudbackenc.common.logger
 import java.io.File
 import java.io.InputStream
-import java.util.logging.Logger
+
 
 /**
  * Created by irotsoma on 6/20/2016.
  */
 
 class GoogleDriveFileIOService : CloudServiceFileIOService {
+    companion object { val LOG by logger() }
 
-    val LOG = Logger.getLogger(this.javaClass.name)
     override fun upload(filePath: File): Boolean {
         LOG.info("Google Drive upload called")
         return true

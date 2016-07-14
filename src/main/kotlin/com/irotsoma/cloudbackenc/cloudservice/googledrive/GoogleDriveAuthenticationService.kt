@@ -1,7 +1,7 @@
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import com.irotsoma.cloudbackenc.cloudservice.CloudServiceAuthenticationService
-import java.util.logging.Logger
+import com.irotsoma.cloudbackenc.common.logger
 
 
 /**
@@ -11,14 +11,14 @@ import java.util.logging.Logger
  */
 
 class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
+    companion object { val LOG by logger() }
 
-    val LOG = Logger.getLogger(this.javaClass.name)
     override fun login(username: String, password: String) : String{
         LOG.info("Google Drive Login")
-        return "test"
+        return "test login"
     }
     override fun logoff() : String{
         LOG.info("Google Drive Logout")
-        return "test"
+        return "test logoff"
     }
 }
