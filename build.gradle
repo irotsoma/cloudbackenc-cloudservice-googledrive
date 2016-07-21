@@ -1,6 +1,6 @@
 group "com.irotsoma.cloudbackenc.cloudservice"
 version "0.1-SNAPSHOT"
-def localMavenRepository = "$rootDir/../../irotsoma-maven-repository"
+def localMavenRepository = "$rootDir/../../maven-repository"
 buildscript {
     repositories {
         mavenCentral()
