@@ -5,7 +5,7 @@ import com.irotsoma.cloudbackenc.common.logger
 
 
 /**
- * Created by justin on 6/19/2016.
+ * Created by irotsoma on 6/19/2016.
  *
  * Authentication service for Google Drive
  */
