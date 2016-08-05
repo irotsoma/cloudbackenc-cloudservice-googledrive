@@ -14,7 +14,7 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
  */
 class GoogleDriveSettings{
     companion object {
-        val apiClientId: String? = null
-        val apiSecret: String? = null
+        val clientId: String? = null
+        val clientSecret: String? = null
     }
 }
