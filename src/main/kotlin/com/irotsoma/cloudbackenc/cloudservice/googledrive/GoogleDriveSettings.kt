@@ -12,9 +12,12 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
  * should consider other methods if possible, or make sure not to distribute the extension outside of a server you
  * control.
  */
-class GoogleDriveSettings{
+class GoogleDriveSettings {
     companion object {
         val clientId: String? = null
         val clientSecret: String? = null
+        val authUri: String? = "https://accounts.google.com/o/oauth2/auth"
+        val tokenUri: String? = "https://accounts.google.com/o/oauth2/token"
+        val redirectUris: List<String> = listOf("urn:ietf:wg:oauth:2.0:oob","http://localhost")
     }
 }
