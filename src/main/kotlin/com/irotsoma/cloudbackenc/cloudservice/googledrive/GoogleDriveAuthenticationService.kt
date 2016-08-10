@@ -1,6 +1,5 @@
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
@@ -12,6 +11,7 @@ import com.irotsoma.cloudbackenc.cloudservice.CloudServiceAuthenticationService
 import com.irotsoma.cloudbackenc.cloudservice.CloudServiceUser
 import com.irotsoma.cloudbackenc.common.logger
 import java.io.File
+import java.net.URL
 
 
 /**
@@ -21,17 +21,20 @@ import java.io.File
  */
 
 class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
+    override var authorizationCallbackURL: URL? = null
+    override var authorizationURL: URL? = null
+
     companion object { val LOG by logger() }
 
     override fun isLoggedIn(user: CloudServiceUser): Boolean {
         LOG.info("Google Drive isLoggedIn")
         return false
     }
-    override fun login(user: CloudServiceUser) : String{
+    override fun login(user: CloudServiceUser) : CloudServiceUser.STATE {
         LOG.info("Google Drive Login")
         //for integration testing
         if (user.userId == "test"){
-            return "test login"
+            return CloudServiceUser.STATE.LOGGED_IN
         }
 
         val jsonFactory = JacksonFactory.getDefaultInstance()
@@ -45,16 +48,17 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
         secretData.redirectUris = GoogleDriveSettings.redirectUris
         val clientSecrets = GoogleClientSecrets()
         clientSecrets.installed=secretData
-        //val clientSecrets = GoogleClientSecrets.load(jsonFactory,InputStreamReader(ClassLoader.getSystemClassLoader().getResourceAsStream("client_secret.json")))
+
         val dataSToreFactory = FileDataStoreFactory(File(System.getProperty("user.home"), ".credentials/cloudbackenc"))
         val flow = GoogleAuthorizationCodeFlow.Builder(transport,jsonFactory,clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataSToreFactory).setAccessType("offline").build()
-
-        //TODO:  send a request back to the ui app to open the URL (override browse? or use another convenience class)
-
-        val authCode = AuthorizationCodeInstalledApp(flow, LocalServerReceiver()).authorize(user.userId)
+        val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver())
+        handler.authorizationCallbackURL = this.authorizationCallbackURL
 
 
-        return "test login"
+        val authCode = handler.authorize(user.userId)
+
+
+        return CloudServiceUser.STATE.LOGGED_IN
     }
     override fun logoff(user: CloudServiceUser) : String{
         LOG.info("Google Drive Logout")
