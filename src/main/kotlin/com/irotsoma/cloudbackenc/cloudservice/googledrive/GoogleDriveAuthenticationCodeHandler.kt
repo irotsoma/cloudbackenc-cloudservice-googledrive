@@ -18,16 +18,17 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
 
     var authorizationURL: URL? = null
     var authorizationCallbackURL: URL? = null
+    var serviceUUID: String? = null
 
     override fun onAuthorization(authorizationUrl: AuthorizationCodeRequestUrl?) {
         if (authorizationUrl != null && authorizationCallbackURL != null) {
             this.authorizationURL = URL(authorizationUrl.build())
             val connection: HttpURLConnection = (authorizationCallbackURL?.openConnection() ?: throw CloudServiceException("Error processing callback URL")) as HttpURLConnection
             connection.doOutput=true
-            connection.requestMethod = "PUT"
+            connection.requestMethod = "POST"
             connection.setRequestProperty("Content-Type", "application/json")
 
-            val jsonUrl = "{\"authorizationURL\":\""+this.authorizationURL.toString()+"\"}"
+            val jsonUrl = "{\"uuid\":\""+"\"authorizationURL\":\""+this.authorizationURL.toString()+"\"}"
 
             val stream: OutputStream  = connection.outputStream
             stream.write(jsonUrl.toByteArray())
@@ -40,6 +41,12 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
         } else {
             super.onAuthorization(authorizationUrl)
         }
+    }
+
+    fun authorize(userID:String, uuid: String, authorizationCallbackURL: URL?){
+        serviceUUID = uuid
+        this.authorizationCallbackURL = authorizationCallbackURL
+        authorize(userID)
     }
 
 }

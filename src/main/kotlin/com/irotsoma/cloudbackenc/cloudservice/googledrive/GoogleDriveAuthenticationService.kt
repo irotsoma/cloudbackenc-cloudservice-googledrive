@@ -52,10 +52,8 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
         val dataSToreFactory = FileDataStoreFactory(File(System.getProperty("user.home"), ".credentials/cloudbackenc"))
         val flow = GoogleAuthorizationCodeFlow.Builder(transport,jsonFactory,clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataSToreFactory).setAccessType("offline").build()
         val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver())
-        handler.authorizationCallbackURL = this.authorizationCallbackURL
 
-
-        val authCode = handler.authorize(user.userId)
+        val authCode = handler.authorize(user.userId, user.serviceUUID,this.authorizationCallbackURL)
 
 
         return CloudServiceUser.STATE.LOGGED_IN
