@@ -8,6 +8,7 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.drive.DriveScopes
 import com.irotsoma.cloudbackenc.cloudservice.CloudServiceAuthenticationService
+import com.irotsoma.cloudbackenc.cloudservice.CloudServiceException
 import com.irotsoma.cloudbackenc.cloudservice.CloudServiceUser
 import com.irotsoma.cloudbackenc.common.logger
 import java.io.File
@@ -40,6 +41,9 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
         val jsonFactory = JacksonFactory.getDefaultInstance()
         val transport = GoogleNetHttpTransport.newTrustedTransport()
         val secretData :GoogleClientSecrets.Details = GoogleClientSecrets.Details()
+        if (GoogleDriveSettings.clientId == null || GoogleDriveSettings.clientSecret == null){
+            throw CloudServiceException("Google Drive client ID or secret is null.  This must be populated in the GoogleDriveSettings before building the plugin.")
+        }
 
         secretData.clientId = GoogleDriveSettings.clientId
         secretData.clientSecret = GoogleDriveSettings.clientSecret
@@ -54,7 +58,6 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
         val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver())
 
         val authCode = handler.authorize(user.userId, user.serviceUUID,this.authorizationCallbackURL)
-
 
         return CloudServiceUser.STATE.LOGGED_IN
     }
