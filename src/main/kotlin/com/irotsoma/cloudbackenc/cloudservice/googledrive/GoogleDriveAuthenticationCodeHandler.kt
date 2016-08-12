@@ -31,7 +31,7 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
             connection.requestMethod = "POST"
             connection.setRequestProperty("Content-Type", "application/json")
 
-            val jsonUrl = "{\"uuid\":\""+"\"authorizationURL\":\""+this.authorizationURL.toString()+"\"}"
+            val jsonUrl = "{\"uuid\":\"$serviceUUID\", \"authorizationURL\":\"${this.authorizationURL.toString()}\"}"
 
             val stream: OutputStream  = connection.outputStream
             stream.write(jsonUrl.toByteArray())
