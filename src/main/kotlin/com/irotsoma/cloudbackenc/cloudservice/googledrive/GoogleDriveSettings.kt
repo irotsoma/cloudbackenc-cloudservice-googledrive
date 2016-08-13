@@ -14,8 +14,8 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
  */
 class GoogleDriveSettings {
     companion object {
-        val clientId: String? = "1057170801984-th4b6lnnqi6pphdi269g7mff7qqftui7.apps.googleusercontent.com"
-        val clientSecret: String? = "IGkTWdtnR1IRgjo0kpaenmOL"
+        val clientId: String? = null
+        val clientSecret: String? = null
         val authUri: String? = "https://accounts.google.com/o/oauth2/auth"
         val tokenUri: String? = "https://accounts.google.com/o/oauth2/token"
         val redirectUris: List<String> = listOf("urn:ietf:wg:oauth:2.0:oob","http://localhost")
