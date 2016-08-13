@@ -56,9 +56,10 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
         val clientSecrets = GoogleClientSecrets()
         clientSecrets.installed=secretData
         //put a credential file in the user.home to hold credentials for future use.
-        val dataSToreFactory = FileDataStoreFactory(File(System.getProperty("user.home"), ".credentials/cloudbackenc"))
+        val dataStoreFactory = FileDataStoreFactory(File(System.getProperty("user.home"), ".credentials/cloudbackenc"))
+
         //use an offline access type to allow for getting a refresh key so the user doesn't need to authorize every time we connect
-        val flow = GoogleAuthorizationCodeFlow.Builder(transport,jsonFactory,clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataSToreFactory).setAccessType("offline").build()
+        val flow = GoogleAuthorizationCodeFlow.Builder(transport,jsonFactory,clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataStoreFactory).setAccessType("offline").build()
         //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
         val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver())
         try {

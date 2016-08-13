@@ -24,6 +24,7 @@ dependencies {
     compile "com.irotsoma.cloudbackenc:cloudservice:0.1-SNAPSHOT"
     compile "org.jetbrains.kotlin:kotlin-reflect:1.0.3"
     compile "org.jetbrains.kotlin:kotlin-stdlib:1.0.3"
+    compile "org.springframework:spring-web:4.3.1.RELEASE"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.1"
     compile 'com.google.apis:google-api-services-drive:v3-rev36-1.22.0'
     compile 'com.google.api-client:google-api-client-java6:1.22.0'

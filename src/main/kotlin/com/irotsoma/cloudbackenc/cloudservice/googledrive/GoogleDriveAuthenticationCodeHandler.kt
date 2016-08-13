@@ -4,10 +4,14 @@ import com.google.api.client.auth.oauth2.AuthorizationCodeFlow
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver
+import com.irotsoma.cloudbackenc.cloudservice.CloudServiceCallbackURL
 import com.irotsoma.cloudbackenc.cloudservice.CloudServiceException
 import com.irotsoma.cloudbackenc.common.logger
-import java.io.OutputStream
-import java.net.HttpURLConnection
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.web.client.RestTemplate
 import java.net.URL
 
 /**
@@ -26,22 +30,17 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
             LOG.debug("Attempting callback to URL:  "+{authorizationCallbackURL.toString()})
             this.authorizationURL = URL(authorizationUrl.build())
             LOG.debug("Google authorization URL:  "+{this.authorizationURL.toString()})
-            val connection: HttpURLConnection = (authorizationCallbackURL?.openConnection() ?: throw CloudServiceException("Error processing callback URL")) as HttpURLConnection
-            connection.doOutput=true
-            connection.requestMethod = "POST"
-            connection.setRequestProperty("Content-Type", "application/json")
 
-            val jsonUrl = "{\"uuid\":\"$serviceUUID\", \"authorizationURL\":\"${this.authorizationURL.toString()}\"}"
-
-            val stream: OutputStream  = connection.outputStream
-            stream.write(jsonUrl.toByteArray())
-            stream.flush()
-            LOG.debug("Callback response code:  "+connection.responseCode)
-            LOG.debug("Callback response message:  "+connection.responseMessage)
-            if (connection.responseCode != HttpURLConnection.HTTP_OK){
-                throw CloudServiceException("Error accessing call back address for authorization URL:  "+connection.responseCode+" -- "+connection.responseMessage)
+            val restTemplate = RestTemplate()
+            val requestHeaders = HttpHeaders()
+            requestHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(serviceUUID ?: "",this.authorizationURL.toString()), requestHeaders)
+            val callResponse = restTemplate.postForEntity(authorizationCallbackURL.toString(), httpEntity, CloudServiceCallbackURL::class.java)
+            LOG.debug("Callback response code:  "+callResponse.statusCode)
+            LOG.debug("Callback response message:  "+callResponse.statusCodeValue)
+            if (callResponse.statusCode != HttpStatus.OK){
+                throw CloudServiceException("Error accessing call back address for authorization URL:  ${callResponse.statusCode} -- ${callResponse.statusCodeValue}")
             }
-            connection.disconnect()
         } else {
             super.onAuthorization(authorizationUrl)
         }
