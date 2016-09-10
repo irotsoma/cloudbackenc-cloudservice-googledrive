@@ -25,9 +25,9 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.drive.DriveScopes
-import com.irotsoma.cloudbackenc.cloudservice.CloudServiceAuthenticationService
-import com.irotsoma.cloudbackenc.cloudservice.CloudServiceException
-import com.irotsoma.cloudbackenc.cloudservice.CloudServiceUser
+import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceAuthenticationService
+import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceException
+import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceUser
 import com.irotsoma.cloudbackenc.common.logger
 import java.io.File
 import java.io.IOException

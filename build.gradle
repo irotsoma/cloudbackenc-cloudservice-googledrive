@@ -31,7 +31,7 @@ plugins {
 group 'com.irotsoma.cloudbackenc.cloudservice'
 version '0.1-SNAPSHOT'
 def localMavenRepository = "$rootDir/../../maven-repository"
-
+def secretFolder = "$rootDir/../secret"
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
@@ -59,10 +59,23 @@ publishing {
             from components.java
             pom.withXml {
                 def root = asNode()
+                root.appendNode('description', 'Google Drive cloud service implementation for CloudBackEnc.')
+                root.appendNode('url', 'https://irotsoma.github.io/cloudbackenc/')
                 def license = root.appendNode('licenses').appendNode('license')
                 license.appendNode('name', 'GNU Lesser General Public License, Version 3.0')
                 license.appendNode('url', 'http://www.gnu.org/licenses/lgpl.txt')
                 license.appendNode('distribution', 'repo')
+                def developers = root.appendNode('developers')
+                def developer1 = developers.appendNode('developer')
+                developer1.appendNode('id','irotsoma')
+                developer1.appendNode('name', 'Justin Zak')
+                developer1.appendNode('email','irotsomadev@gmail.com')
+                developer1.appendNode('organization', 'Irotsoma, LLC')
+                developer1.appendNode('organizationUrl','https://www.irotsoma.com')
+                def scm = root.appendNode('scm')
+                scm.appendNode('connection','scm:git:git@github.com:irotsoma/cloudbackenc.git')
+                scm.appendNode('developerConnection','scm:git:git@github.com:irotsoma/cloudbackenc.git')
+                scm.appendNode('url','git@github.com:irotsoma/cloudbackenc.git')
             }
         }
     }
@@ -72,7 +85,12 @@ publishing {
         }
     }
 }
-
+apply plugin: 'signing'
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+signing {
+    required { isReleaseVersion }
+    sign configurations.archives
+}
 jar {
     //build a fat jar with dependencies to ease central controller loading resources at runtime
     from {
@@ -80,7 +98,7 @@ jar {
     }
     //but exclude anything that will already be loaded by the central controller to reduce the file size and chances of
     //version conflicts
-    exclude 'kotlin/**', 'com/irotsoma/**', 'javax/**', 'com/fasterxml/jackson/**', 'META-INF/*/**'
+    exclude 'kotlin/**', 'com/irotsoma/cloudbackenc/common/**', 'javax/**', 'com/fasterxml/jackson/**', 'META-INF/*/**'
 }
 
 sourceSets {
@@ -116,7 +134,6 @@ copyLicenseReports.mustRunAfter 'downloadLicenses'
 //only at compile time. Adjust the variables at the top to change locations and file name.
 def packageLocation = 'src/main/kotlin/com/irotsoma/cloudbackenc/cloudservice/googledrive/'
 def fileName = 'GoogleDriveSettings.kt'
-def secretFolder = 'secret'
 def tempFolder = 'build/tmp'
 
 task copySettingsToTemp(type: Copy){

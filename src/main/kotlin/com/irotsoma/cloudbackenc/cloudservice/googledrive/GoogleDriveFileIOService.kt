@@ -17,7 +17,7 @@
 
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
-import com.irotsoma.cloudbackenc.cloudservice.CloudServiceFileIOService
+import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceFileIOService
 import com.irotsoma.cloudbackenc.common.logger
 import java.io.File
 import java.io.InputStream
