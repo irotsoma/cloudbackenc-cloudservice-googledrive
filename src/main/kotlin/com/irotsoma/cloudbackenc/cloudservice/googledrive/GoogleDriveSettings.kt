@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
+/*
+ * Created by irotsoma on 7/15/2016.
+ */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 /**
- * Created by irotsoma on 7/15/2016.
- *
  * This is a placeholder for the OAuth2 api client id and secret that must be received from Google.  There is a gradle
  * script to pull a copy of this file from a "secret" folder on build. You can then check the secret folder into a
  * private repo or only keep a local copy to prevent accidentally checking the id and secret into a public repo.
@@ -29,11 +29,11 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
  * should consider other methods if possible, or make sure not to distribute the extension outside of a server you
  * control.
  */
-class GoogleDriveSettings {
+class GoogleDriveSettings{
     companion object {
-        val clientId: String? = null
-        val clientSecret: String? = null
-        val authUri: String? = "https://accounts.google.com/o/oauth2/auth"
+        val clientId: String? = ""
+        val clientSecret: String? = ""
+        val authUri :String? = "https://accounts.google.com/o/oauth2/auth"
         val tokenUri: String? = "https://accounts.google.com/o/oauth2/token"
         val redirectUris: List<String> = listOf("urn:ietf:wg:oauth:2.0:oob","http://localhost")
     }

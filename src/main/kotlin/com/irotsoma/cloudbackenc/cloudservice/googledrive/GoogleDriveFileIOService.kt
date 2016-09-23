@@ -14,20 +14,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
+/*
+ * Created by irotsoma on 6/20/2016.
+ */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
+import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceFile
 import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceFileIOService
 import com.irotsoma.cloudbackenc.common.logger
 import java.io.File
 import java.io.InputStream
 
 
-/**
- * Created by irotsoma on 6/20/2016.
- */
+
 
 class GoogleDriveFileIOService : CloudServiceFileIOService {
+    override fun delete(targetPath: String): Boolean {
+        LOG.info("Google Drive delete called")
+        throw UnsupportedOperationException("not implemented")
+    }
+
     companion object { val LOG by logger() }
 
     override fun upload(filePath: File): Boolean {
@@ -35,13 +41,13 @@ class GoogleDriveFileIOService : CloudServiceFileIOService {
         return true
     }
 
-    override fun list(dirPath: File): List<File> {
+    override fun list(dirPath: String): List<CloudServiceFile> {
         LOG.info("Google Drive list called")
-        return listOf(File("test"))
+        throw UnsupportedOperationException("not implemented")
 
     }
 
-    override fun download(filePath: File): InputStream {
+    override fun download(filePath: String): InputStream {
         LOG.info("Google Drive download called")
         throw UnsupportedOperationException()
     }

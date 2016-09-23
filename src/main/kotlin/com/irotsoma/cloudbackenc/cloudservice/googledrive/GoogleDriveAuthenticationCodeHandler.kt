@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
+/*
+ * Created by irotsoma on 8/9/2016.
+ */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow
@@ -32,9 +34,7 @@ import org.springframework.web.client.RestTemplate
 import java.net.URL
 
 /**
- * Created by irotsoma on 8/9/2016.
- *
- * Modified AuthorizationCOdeInstalledApp class that when an authorization URL is returned, call the callback URL provided if applicable
+ * Modified AuthorizationCodeInstalledApp class which when an authorization URL is returned, calls the callback URL provided if applicable
  */
 class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver ) : AuthorizationCodeInstalledApp(flow,receiver) {
     companion object { val LOG by logger() }

@@ -41,8 +41,8 @@ import java.net.URL
  */
 
 class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
-    //override var authorizationCallbackURL: URL? = null
-    override var authorizationURL: URL? = null
+
+    override var authorizationCallbackServiceURL: URL? = null
 
     companion object { val LOG by logger() }
 

@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
+/*
+ * Created by irotsoma on 6/20/2016.
+ */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceAuthenticationService
@@ -22,8 +24,6 @@ import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceFactory
 import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceFileIOService
 
 /**
- * Created by irotsoma on 6/20/2016.
- *
  * Service Factory for Google Drive
  */
 
