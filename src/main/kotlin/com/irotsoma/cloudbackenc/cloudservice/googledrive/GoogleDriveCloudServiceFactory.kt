@@ -19,16 +19,41 @@
  */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceAuthenticationService
+import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceExtensionConfig
 import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceFactory
 import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceFileIOService
+import java.util.*
 
 /**
+ * The name of the resource file that contains the extension configuration
+ */
+private const val EXTENSION_CONFIG_FILE_PATH = "cloud-service-extension.json"
+/**
  * Service Factory for Google Drive
+ *
+ * @author Justin Zak
+ * @constructor Reads the config file to get the UUID and Name of the current extension.
  */
 
 class GoogleDriveCloudServiceFactory : CloudServiceFactory {
-
+    companion object {
+        lateinit var ExtensionUUID: UUID
+        lateinit var ExtensionName: String
+    }
+    constructor(){
+        //get Json config file data
+        val configFileStream = this.javaClass.getResourceAsStream(EXTENSION_CONFIG_FILE_PATH)
+        val jsonValue = configFileStream.reader().readText()
+        val mapper = ObjectMapper().registerModule(KotlinModule())
+        val mapperData: CloudServiceExtensionConfig = mapper.readValue(jsonValue)
+        //add values to variables for consumption later
+        ExtensionUUID = UUID.fromString(mapperData.serviceUUID)
+        ExtensionName = mapperData.serviceName
+    }
     override val authenticationService: CloudServiceAuthenticationService = GoogleDriveAuthenticationService()
     override val cloudServiceFileIOService: CloudServiceFileIOService = GoogleDriveFileIOService()
 }

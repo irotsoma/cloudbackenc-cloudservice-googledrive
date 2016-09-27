@@ -28,6 +28,8 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
  * file for a "hacker" to get the key and secret.  Though this still isn't a safe way to distribute your api key.  You
  * should consider other methods if possible, or make sure not to distribute the extension outside of a server you
  * control.
+ *
+ * @author Justin Zak
  */
 class GoogleDriveSettings{
     companion object {

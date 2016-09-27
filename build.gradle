@@ -38,12 +38,18 @@ apply plugin: 'kotlin'
 repositories {
     mavenCentral()
     maven{url localMavenRepository}
+    //if the current project is a snapshot then allow using snapshot versions from maven central  Having this as an if prevents accidentally building a release version with snapshot dependencies.
+    if (project.version.endsWith('-SNAPSHOT')){
+        maven{
+            url 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'com.irotsoma.cloudbackenc:common:0.1'
-    compile 'com.irotsoma.cloudbackenc:cloudservice:0.1'
+    compile 'com.irotsoma.cloudbackenc:cloudservice:0.2-SNAPSHOT'
     compile 'org.springframework:spring-web:4.3.2.RELEASE'
     compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.8.1'
     compile 'com.google.apis:google-api-services-drive:v3-rev36-1.22.0'
@@ -83,7 +89,7 @@ apply plugin: 'com.github.hierynomus.license'
 license {
     ignoreFailures true
     mapping ('kt', 'JAVADOC_STYLE')
-    excludes(['**/*.json', '**/*.properties', '**/LICENSE', '**/*license*.html', '**/*license*.xml'])
+    excludes(['**/*.json', '**/*.properties', '**/LICENSE', '**/*license*.html', '**/*license*.xml', '**COPYING', '**COPYING.LESSER'])
 }
 task copyLicenseReports(type: Copy){
     from "$buildDir/reports/license/"

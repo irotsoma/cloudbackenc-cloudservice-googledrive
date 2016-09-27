@@ -15,7 +15,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
+/*
+ * Created by irotsoma on 6/19/2016.
+ */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
@@ -33,16 +35,15 @@ import java.io.File
 import java.io.IOException
 import java.net.URL
 
-
 /**
  * Created by irotsoma on 6/19/2016.
  *
- * Authentication service for Google Drive
+ * Authentication service implementation for Google Drive
+ *
+ * @author Justin Zak
  */
 
 class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
-
-    override var authorizationCallbackServiceURL: URL? = null
 
     companion object { val LOG by logger() }
 
@@ -56,15 +57,19 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
         if (user.userId == "test"){
             return CloudServiceUser(user.userId,"",user.serviceUUID, CloudServiceUser.STATE.LOGGED_IN,"")
         }
+        //Verify that the user.serviceUUID is the same as the UUID for the current extension.
+        if (user.serviceUUID != GoogleDriveCloudServiceFactory.ExtensionUUID.toString()){
+            throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
+        }
+        //make sure client ID and client secret are populated, otherwise the developer (probably you) forgot to add them
+        if (GoogleDriveSettings.clientId == null || GoogleDriveSettings.clientSecret == null){
+            throw CloudServiceException("Google Drive client ID or secret is null.  This must be populated in the GoogleDriveSettings before building the extension.")
+        }
 
         val jsonFactory = JacksonFactory.getDefaultInstance()
         val transport = GoogleNetHttpTransport.newTrustedTransport()
         val secretData :GoogleClientSecrets.Details = GoogleClientSecrets.Details()
 
-        //make sure client ID and client secret are populated, otherwise the developer (probably you) forgot to add them
-        if (GoogleDriveSettings.clientId == null || GoogleDriveSettings.clientSecret == null){
-            throw CloudServiceException("Google Drive client ID or secret is null.  This must be populated in the GoogleDriveSettings before building the plugin.")
-        }
         //build Google secret details object
         secretData.clientId = GoogleDriveSettings.clientId
         secretData.clientSecret = GoogleDriveSettings.clientSecret
@@ -81,7 +86,7 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
         //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
         val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver())
         try {
-            handler.authorize(user.userId, user.serviceUUID, URL(user.authorizationCallbackURL))
+            handler.authorize(user.userId, URL(user.authorizationCallbackURL))
         }catch (e: IOException){
             throw CloudServiceException("Error during authorization process: ${e.message}", e)
         }

@@ -35,24 +35,34 @@ import java.net.URL
 
 /**
  * Modified AuthorizationCodeInstalledApp class which when an authorization URL is returned, calls the callback URL provided if applicable
+ *
+ * @author Justin Zak
+ * @param flow An [AuthorizationCodeFlow] object to be used by the superclass
+ * @param receiver A [VerificationCodeReceiver] object to be used by the superclass
  */
-class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver ) : AuthorizationCodeInstalledApp(flow,receiver) {
+class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver ) : AuthorizationCodeInstalledApp(flow, receiver) {
     companion object { val LOG by logger() }
-    var authorizationURL: URL? = null
-    var authorizationCallbackURL: URL? = null
-    var serviceUUID: String? = null
+    /**
+     * The url of the calling application that will present the authorization URL to the user.
+     */
+    var authorizationCallbackUrl: URL? = null
 
+    /**
+     * If there is both an authorization URL and a callback URL then call the callback service rather than trying to open a local web browser or sending to System.out
+     *
+     * @param authorizationUrl  The URL that the user must browse to in order to complete the authorization process, if applicable.
+     */
     override fun onAuthorization(authorizationUrl: AuthorizationCodeRequestUrl?) {
-        if (authorizationUrl != null && authorizationCallbackURL != null) {
-            LOG.debug("Attempting callback to URL:  "+{authorizationCallbackURL.toString()})
-            this.authorizationURL = URL(authorizationUrl.build())
-            LOG.debug("Google authorization URL:  "+{this.authorizationURL.toString()})
+        if (authorizationUrl != null && authorizationCallbackUrl != null) {
+            LOG.debug("Attempting callback to URL:  "+{authorizationCallbackUrl.toString()})
+            val currentAuthorizationURL = URL(authorizationUrl.build())
+            LOG.debug("Google authorization URL:  "+{currentAuthorizationURL.toString()})
 
             val restTemplate = RestTemplate()
             val requestHeaders = HttpHeaders()
             requestHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(serviceUUID ?: "",this.authorizationURL.toString()), requestHeaders)
-            val callResponse = restTemplate.postForEntity(authorizationCallbackURL.toString(), httpEntity, CloudServiceCallbackURL::class.java)
+            val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(GoogleDriveCloudServiceFactory.ExtensionUUID.toString(), currentAuthorizationURL.toString()), requestHeaders)
+            val callResponse = restTemplate.postForEntity(authorizationCallbackUrl.toString(), httpEntity, CloudServiceCallbackURL::class.java)
             LOG.debug("Callback response code:  "+callResponse.statusCode)
             LOG.debug("Callback response message:  "+callResponse.statusCodeValue)
             if (callResponse.statusCode != HttpStatus.ACCEPTED){
@@ -63,9 +73,14 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
         }
     }
 
-    fun authorize(userID:String, uuid: String, authorizationCallbackURL: URL?){
-        serviceUUID = uuid
-        this.authorizationCallbackURL = authorizationCallbackURL
+    /**
+     * Stores the callback url from the calling application and calls the superclass's authorize function.
+     *
+     * @param userID The user ID for the Google Drive user
+     * @param authorizationCallbackUrl The callback URL that will be used if the authorize call requires the user to navigate to an external site to finish the authorization process
+     */
+    fun authorize(userID:String, authorizationCallbackUrl: URL?){
+        this.authorizationCallbackUrl = authorizationCallbackUrl
         authorize(userID)
     }
 
