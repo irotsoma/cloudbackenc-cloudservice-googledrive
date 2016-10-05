@@ -46,7 +46,7 @@ class GoogleDriveCloudServiceFactory : CloudServiceFactory {
     }
     constructor(){
         //get Json config file data
-        val configFileStream = this.javaClass.getResourceAsStream(EXTENSION_CONFIG_FILE_PATH)
+        val configFileStream = Thread.currentThread().contextClassLoader.getResourceAsStream(EXTENSION_CONFIG_FILE_PATH)
         val jsonValue = configFileStream.reader().readText()
         val mapper = ObjectMapper().registerModule(KotlinModule())
         val mapperData: CloudServiceExtensionConfig = mapper.readValue(jsonValue)
