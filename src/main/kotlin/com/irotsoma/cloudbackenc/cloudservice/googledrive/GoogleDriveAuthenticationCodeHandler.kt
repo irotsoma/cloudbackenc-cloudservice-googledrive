@@ -61,7 +61,7 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
             val restTemplate = RestTemplate()
             val requestHeaders = HttpHeaders()
             requestHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(GoogleDriveCloudServiceFactory.ExtensionUUID.toString(), currentAuthorizationURL.toString()), requestHeaders)
+            val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(GoogleDriveCloudServiceFactory.extensionUUID.toString(), currentAuthorizationURL.toString()), requestHeaders)
             val callResponse = restTemplate.postForEntity(authorizationCallbackUrl.toString(), httpEntity, CloudServiceCallbackURL::class.java)
             LOG.debug("Callback response code:  "+callResponse.statusCode)
             LOG.debug("Callback response message:  "+callResponse.statusCodeValue)
@@ -76,7 +76,7 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
     /**
      * Stores the callback url from the calling application and calls the superclass's authorize function.
      *
-     * @param userID The user ID for the Google Drive user
+     * @param userID The user ID for the CloudBackEnc user
      * @param authorizationCallbackUrl The callback URL that will be used if the authorize call requires the user to navigate to an external site to finish the authorization process
      */
     fun authorize(userID:String, authorizationCallbackUrl: URL?){

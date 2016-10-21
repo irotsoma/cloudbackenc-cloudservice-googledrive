@@ -41,8 +41,8 @@ private const val EXTENSION_CONFIG_FILE_PATH = "cloud-service-extension.json"
 
 class GoogleDriveCloudServiceFactory : CloudServiceFactory {
     companion object {
-        lateinit var ExtensionUUID: UUID
-        lateinit var ExtensionName: String
+        lateinit var extensionUUID: UUID
+        lateinit var extensionName: String
     }
     constructor(){
         //get Json config file data
@@ -51,8 +51,8 @@ class GoogleDriveCloudServiceFactory : CloudServiceFactory {
         val mapper = ObjectMapper().registerModule(KotlinModule())
         val mapperData: CloudServiceExtensionConfig = mapper.readValue(jsonValue)
         //add values to variables for consumption later
-        ExtensionUUID = UUID.fromString(mapperData.serviceUUID)
-        ExtensionName = mapperData.serviceName
+        extensionUUID = UUID.fromString(mapperData.serviceUUID)
+        extensionName = mapperData.serviceName
     }
     override val authenticationService: CloudServiceAuthenticationService = GoogleDriveAuthenticationService()
     override val cloudServiceFileIOService: CloudServiceFileIOService = GoogleDriveFileIOService()

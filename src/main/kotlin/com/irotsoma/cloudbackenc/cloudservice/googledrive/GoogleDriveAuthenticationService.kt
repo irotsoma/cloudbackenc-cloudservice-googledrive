@@ -27,6 +27,8 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.drive.DriveScopes
+import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
+import com.irotsoma.cloudbackenc.common.CloudBackEncUser
 import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceAuthenticationService
 import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceException
 import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceUser
@@ -47,18 +49,19 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
 
     companion object { val LOG by logger() }
 
+    val credentialStorageLocation = File(System.getProperty("user.home"), ".credentials/cloudbackenc/googledrive")
     override fun isLoggedIn(user: CloudServiceUser): Boolean {
         LOG.info("Google Drive isLoggedIn")
         return false
     }
-    override fun login(user: CloudServiceUser) : CloudServiceUser {
+    override fun login(user: CloudBackEncUser, cloudServiceUser: CloudServiceUser) : CloudServiceUser.STATE {
         LOG.info("Google Drive Login")
         //for integration testing
-        if (user.userId == "test"){
-            return CloudServiceUser(user.userId,null,user.serviceUUID, CloudServiceUser.STATE.LOGGED_IN,"")
+        if ((user.userId == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+            return CloudServiceUser.STATE.LOGGED_IN
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
-        if (user.serviceUUID != GoogleDriveCloudServiceFactory.ExtensionUUID.toString()){
+        if (cloudServiceUser.serviceUUID != GoogleDriveCloudServiceFactory.extensionUUID.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
         //make sure client ID and client secret are populated, otherwise the developer (probably you) forgot to add them
@@ -78,23 +81,27 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
         secretData.redirectUris = GoogleDriveSettings.redirectUris
         val clientSecrets = GoogleClientSecrets()
         clientSecrets.installed=secretData
-        //put a credential file in the user.home to hold credentials for future use.
-        val dataStoreFactory = FileDataStoreFactory(File(System.getProperty("user.home"), ".credentials/cloudbackenc"))
+        //create a credential file to hold credentials for future use
+        val dataStoreFactory = FileDataStoreFactory(credentialStorageLocation)
 
         //use an offline access type to allow for getting a refresh key so the user doesn't need to authorize every time we connect
         val flow = GoogleAuthorizationCodeFlow.Builder(transport,jsonFactory,clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataStoreFactory).setAccessType("offline").build()
         //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
         val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver())
         try {
-            handler.authorize(user.userId, URL(user.authorizationCallbackURL))
+            handler.authorize(user.userId, URL(cloudServiceUser.authorizationCallbackURL))
         }catch (e: IOException){
             throw CloudServiceException("Error during authorization process: ${e.message}", e)
         }
 
-        return CloudServiceUser(user.userId,"",user.serviceUUID, CloudServiceUser.STATE.LOGGED_IN, user.authorizationCallbackURL)
+        return CloudServiceUser.STATE.LOGGED_IN
     }
-    override fun logoff(user: CloudServiceUser) : String{
+    override fun logoff(user: CloudServiceUser) : CloudServiceUser.STATE{
         LOG.info("Google Drive Logout")
-        return "test logoff"
+
+        //TODO: Implement this
+
+
+        return CloudServiceUser.STATE.LOGGED_OUT
     }
 }
