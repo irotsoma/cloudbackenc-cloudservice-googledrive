@@ -148,5 +148,7 @@ task copyBlankSettingsToSource(type: Copy){
 assemble.dependsOn 'copySettingsToTemp'
 assemble.dependsOn 'copySecretToSource'
 copySecretToSource.mustRunAfter 'copySettingsToTemp'
-build.dependsOn 'copyBlankSettingsToSource'
-copyBlankSettingsToSource.mustRunAfter 'assemble'
+
+gradle.buildFinished {
+    copyBlankSettingsToSource.execute()
+}
