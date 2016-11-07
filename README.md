@@ -1,4 +1,7 @@
 # cloudbackenc-cloudservice-googledrive
+
+Build Status:  [![CircleCI](https://circleci.com/gh/irotsoma/cloudservice-googledrive.svg?style=svg)](https://circleci.com/gh/irotsoma/cloudservice-googledrive)
+
 Google Drive implementation of cloud services for CloudBackEnc
 
 <span style="font-size: .5em;">
