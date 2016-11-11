@@ -60,7 +60,9 @@ dependencies {
 }
 
 apply plugin: 'signing'
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 signing {
+    required { isReleaseVersion }
     sign configurations.archives
 }
 jar {
