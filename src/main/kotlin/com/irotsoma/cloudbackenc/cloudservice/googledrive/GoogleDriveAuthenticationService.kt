@@ -61,7 +61,7 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
             return CloudServiceUser.STATE.LOGGED_IN
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
-        if (cloudServiceUser.serviceUUID != GoogleDriveCloudServiceFactory.extensionUUID.toString()){
+        if (cloudServiceUser.serviceUuid != GoogleDriveCloudServiceFactory.extensionUUID.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
         //make sure client ID and client secret are populated, otherwise the developer (probably you) forgot to add them
