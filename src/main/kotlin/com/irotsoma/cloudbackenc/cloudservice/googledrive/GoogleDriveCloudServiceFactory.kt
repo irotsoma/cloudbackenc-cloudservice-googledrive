@@ -22,10 +22,10 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceAuthenticationService
-import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceExtensionConfig
-import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceFactory
-import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceFileIOService
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceAuthenticationService
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceExtensionConfig
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFactory
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFileIOService
 import java.util.*
 
 /**

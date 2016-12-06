@@ -23,8 +23,8 @@ import com.google.api.client.auth.oauth2.AuthorizationCodeFlow
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver
-import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceCallbackURL
-import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceException
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceCallbackURL
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceException
 import com.irotsoma.cloudbackenc.common.logger
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders

@@ -29,9 +29,9 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.drive.DriveScopes
 import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
-import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceAuthenticationService
-import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceException
-import com.irotsoma.cloudbackenc.common.cloudservice.CloudServiceUser
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceAuthenticationService
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceException
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceUser
 import com.irotsoma.cloudbackenc.common.logger
 import java.io.File
 import java.io.IOException
