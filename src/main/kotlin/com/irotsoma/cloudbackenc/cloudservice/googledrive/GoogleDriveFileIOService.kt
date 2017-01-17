@@ -36,7 +36,7 @@ class GoogleDriveFileIOService : CloudServiceFileIOService {
 
     companion object { val LOG by logger() }
 
-    override fun upload(filePath: File): Boolean {
+    override fun upload(filePath: File, uploadedFilePath: String): Boolean {
         LOG.info("Google Drive upload called")
         return true
     }
