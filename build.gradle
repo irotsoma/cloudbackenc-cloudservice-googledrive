@@ -16,9 +16,12 @@
  */
 
 buildscript {
-    ext.kotlin_version = '1.0.6'
+    ext.kotlin_version = '1.1-M04'
     repositories {
         mavenCentral()
+
+        //kotlin 1.1 EAP
+        maven {url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1'}
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -31,20 +34,21 @@ plugins {
 
 group 'com.irotsoma.cloudbackenc.cloudservice'
 version '0.2-SNAPSHOT'
-def localMavenRepository = "$rootDir/../../maven-repository"
 def secretFolder = "$rootDir/../secret"
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
 repositories {
     mavenCentral()
-    maven{url localMavenRepository}
     //if the current project is a snapshot then allow using snapshot versions from maven central  Having this as an if prevents accidentally building a release version with snapshot dependencies.
     if (project.version.endsWith('-SNAPSHOT')){
         maven{
             url 'https://oss.sonatype.org/content/repositories/snapshots/'
         }
     }
+
+    //kotlin 1.1 EAP
+    maven {url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1'}
 }
 
 dependencies {
