@@ -21,6 +21,7 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl
+import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceCallbackURL
@@ -79,9 +80,9 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
      * @param userID The user ID for the CloudBackEnc user
      * @param authorizationCallbackUrl The callback URL that will be used if the authorize call requires the user to navigate to an external site to finish the authorization process
      */
-    fun authorize(userID:String, authorizationCallbackUrl: URL?){
+    fun authorize(userID:String, authorizationCallbackUrl: URL?) : Credential?{
         this.authorizationCallbackUrl = authorizationCallbackUrl
-        authorize(userID)
+        return authorize(userID)
     }
 
 }

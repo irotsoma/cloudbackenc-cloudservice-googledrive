@@ -29,26 +29,35 @@ import java.io.InputStream
 
 
 class GoogleDriveFileIOService : CloudServiceFileIOService {
-    override fun delete(targetPath: String): Boolean {
-        LOG.info("Google Drive delete called")
-        throw UnsupportedOperationException("not implemented")
-    }
 
     companion object { val LOG by logger() }
 
+    override fun delete(targetPath: String): Boolean {
+        LOG.info("Google Drive delete called")
+        //TODO implement
+        throw UnsupportedOperationException("not implemented")
+    }
     override fun upload(filePath: File, uploadedFilePath: String): Boolean {
         LOG.info("Google Drive upload called")
+        //TODO implement
         return true
     }
 
     override fun list(dirPath: String): List<CloudServiceFile> {
         LOG.info("Google Drive list called")
+        //TODO implement
         throw UnsupportedOperationException("not implemented")
 
     }
 
     override fun download(filePath: String): InputStream {
         LOG.info("Google Drive download called")
-        throw UnsupportedOperationException()
+        //TODO implement
+        throw UnsupportedOperationException("not implemented")
+    }
+
+    override fun availableSpace(): Long{
+        //TODO implement
+        throw UnsupportedOperationException("not implemented")
     }
 }

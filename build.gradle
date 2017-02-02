@@ -22,7 +22,7 @@ buildscript {
     ext.jacksonVersion = '2.8.6'
     ext.springWebVersion ='4.3.5.RELEASE'
     ext.googleApiVersion = '1.22.0'
-    ext.googleDriveApiVersion = 'v3-rev55-1.22.0'
+    ext.googleDriveApiVersion = 'v3-rev56-1.22.0'
     ext.junitVersion = '4.12'
 
 
