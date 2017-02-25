@@ -36,17 +36,19 @@ private const val EXTENSION_CONFIG_FILE_PATH = "cloud-service-extension.json"
  * Service Factory for Google Drive
  *
  * @author Justin Zak
- * @constructor Reads the config file to get the UUID and Name of the current extension.
  */
 
-class GoogleDriveCloudServiceFactory : CloudServiceFactory {
+class GoogleDriveCloudServiceFactory: CloudServiceFactory {
     companion object {
         lateinit var extensionUUID: UUID
         lateinit var extensionName: String
     }
-    constructor(){
+    /**
+     * Reads the config file to get the UUID and Name of the current extension.
+     */
+    init {
         //get Json config file data
-        val configFileStream = javaClass.classLoader.getResourceAsStream(EXTENSION_CONFIG_FILE_PATH)
+        val configFileStream = this::class.java.classLoader.getResourceAsStream(EXTENSION_CONFIG_FILE_PATH)
         val jsonValue = configFileStream.reader().readText()
         val mapper = ObjectMapper().registerModule(KotlinModule())
         val mapperData: CloudServiceExtensionConfig = mapper.readValue(jsonValue)

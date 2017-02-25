@@ -19,6 +19,10 @@
  */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
+import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.services.drive.Drive
+import com.irotsoma.cloudbackenc.common.CloudBackEncUser
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFile
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFileIOService
 import com.irotsoma.cloudbackenc.common.logger
@@ -26,37 +30,50 @@ import java.io.File
 import java.io.InputStream
 
 
-
-
 class GoogleDriveFileIOService : CloudServiceFileIOService {
 
     companion object { val LOG by logger() }
 
-    override fun delete(targetPath: String): Boolean {
+    val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null)
+
+    fun buildDrive(userId: String): Drive? {
+        val credential = flow.loadCredential(userId)
+        if (credential == null || (credential.refreshToken == null && credential.expiresInSeconds < 60)) {
+            LOG.info("Credentials are invalid or about to expire.  New Login Required.")
+            return null
+        }
+        return Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), credential).build()
+    }
+
+    override fun delete(targetPath: String, user: CloudBackEncUser): Boolean {
         LOG.info("Google Drive delete called")
+        //TODO implement
+        val drive = buildDrive(user.username) ?: return false
+        throw UnsupportedOperationException("not implemented")
+
+
+
+    }
+    override fun upload(filePath: File, uploadedFilePath: String, user: CloudBackEncUser): Boolean {
+        LOG.info("Google Drive upload called")
         //TODO implement
         throw UnsupportedOperationException("not implemented")
     }
-    override fun upload(filePath: File, uploadedFilePath: String): Boolean {
-        LOG.info("Google Drive upload called")
-        //TODO implement
-        return true
-    }
 
-    override fun list(dirPath: String): List<CloudServiceFile> {
+    override fun list(dirPath: String, user: CloudBackEncUser): List<CloudServiceFile> {
         LOG.info("Google Drive list called")
         //TODO implement
         throw UnsupportedOperationException("not implemented")
 
     }
 
-    override fun download(filePath: String): InputStream {
+    override fun download(filePath: String, user: CloudBackEncUser): InputStream {
         LOG.info("Google Drive download called")
         //TODO implement
         throw UnsupportedOperationException("not implemented")
     }
 
-    override fun availableSpace(): Long{
+    override fun availableSpace(user: CloudBackEncUser): Long {
         //TODO implement
         throw UnsupportedOperationException("not implemented")
     }
