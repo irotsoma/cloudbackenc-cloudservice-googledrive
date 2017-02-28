@@ -54,7 +54,7 @@ class GoogleDriveFileIOService : CloudServiceFileIOService {
 
 
     }
-    override fun upload(filePath: File, uploadedFilePath: String, user: CloudBackEncUser): Boolean {
+    override fun upload(filePath: File, uploadedFilePath: String, user: CloudBackEncUser): CloudServiceFile? {
         LOG.info("Google Drive upload called")
         //TODO implement
         throw UnsupportedOperationException("not implemented")
