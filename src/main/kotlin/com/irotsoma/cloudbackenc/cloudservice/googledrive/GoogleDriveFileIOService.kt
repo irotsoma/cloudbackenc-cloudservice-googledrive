@@ -20,6 +20,7 @@
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
+import com.google.api.client.http.FileContent
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
@@ -28,11 +29,15 @@ import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServi
 import com.irotsoma.cloudbackenc.common.logger
 import java.io.File
 import java.io.InputStream
-
+import java.nio.file.Path
 
 class GoogleDriveFileIOService : CloudServiceFileIOService {
 
-    companion object { val LOG by logger() }
+    companion object {
+        val LOG by logger()
+        val PARENT_DIRECTORY = "CloudBackEncFiles"
+        val MIME_TYPE = "application/octet-stream"
+    }
 
     val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null)
 
@@ -54,10 +59,23 @@ class GoogleDriveFileIOService : CloudServiceFileIOService {
 
 
     }
-    override fun upload(filePath: File, uploadedFilePath: String, user: CloudBackEncUser): CloudServiceFile? {
+    override fun upload(filePath: File, uploadedFilePath: Path, user: CloudBackEncUser): CloudServiceFile? {
         LOG.info("Google Drive upload called")
         //TODO implement
-        throw UnsupportedOperationException("not implemented")
+        val drive = buildDrive(user.username) ?: return null
+        val driveFile = com.google.api.services.drive.model.File()
+        driveFile.name = uploadedFilePath.fileName.toString()
+        //check for and create any parent directories as needed
+        val parents = ArrayList<String>(listOf(PARENT_DIRECTORY))
+        for (x in 0..uploadedFilePath.nameCount-2){
+            parents.add(uploadedFilePath.getName(x).toString())
+        }
+        driveFile.parents = parents
+        driveFile.mimeType = MIME_TYPE
+        val fileContent = FileContent(MIME_TYPE, filePath)
+        val uploadedFile = drive.files().create(driveFile,fileContent).setFields("id").execute()
+
+        return CloudServiceFile(uploadedFile.name, false, !uploadedFile.capabilities.canEdit, uploadedFile.capabilities.canCopy, uploadedFile.parents.toString(), uploadedFile.id, uploadedFile.size.toLong())
     }
 
     override fun list(dirPath: String, user: CloudBackEncUser): List<CloudServiceFile> {
