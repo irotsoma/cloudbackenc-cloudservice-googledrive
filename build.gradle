@@ -17,7 +17,7 @@
 
 buildscript {
     ext.commonVersion = '0.2-SNAPSHOT'
-    ext.kotlin_version = '1.1.0-rc-91'
+    ext.kotlin_version = '1.1.0'
     ext.dokkaVersion = '0.9.13'
     ext.jacksonVersion = '2.8.6'
     ext.springWebVersion ='4.3.5.RELEASE'
@@ -28,9 +28,6 @@ buildscript {
 
     repositories {
         mavenCentral()
-
-        //kotlin 1.1 EAP
-        maven {url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1'}
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -55,9 +52,6 @@ repositories {
             url 'https://oss.sonatype.org/content/repositories/snapshots/'
         }
     }
-
-    //kotlin 1.1 EAP
-    maven {url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1'}
 }
 
 dependencies {
