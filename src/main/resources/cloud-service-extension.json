@@ -3,5 +3,7 @@
   "serviceName": "Google Drive",
   "packageName": "com.irotsoma.cloudbackenc.cloudservice.googledrive",
   "factoryClass": "GoogleDriveCloudServiceFactory",
+  "requiresUsername": false,
+  "requiresPassword": false,
   "releaseVersion" : 1
 }
