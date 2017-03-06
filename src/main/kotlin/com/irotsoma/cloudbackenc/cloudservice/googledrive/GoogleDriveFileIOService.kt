@@ -26,17 +26,16 @@ import com.google.api.services.drive.Drive
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFile
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFileIOService
-import com.irotsoma.cloudbackenc.common.logger
+import mu.KLogging
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
 
 class GoogleDriveFileIOService : CloudServiceFileIOService {
-
-    companion object {
-        val LOG by logger()
-        val PARENT_DIRECTORY = "CloudBackEncFiles"
-        val MIME_TYPE = "application/octet-stream"
+    /** kotlin-logging implementation*/
+    companion object: KLogging() {
+        const val PARENT_DIRECTORY = "CloudBackEncFiles"
+        const val MIME_TYPE = "application/octet-stream"
     }
 
     val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null)
@@ -44,14 +43,14 @@ class GoogleDriveFileIOService : CloudServiceFileIOService {
     fun buildDrive(userId: String): Drive? {
         val credential = flow.loadCredential(userId)
         if (credential == null || (credential.refreshToken == null && credential.expiresInSeconds < 60)) {
-            LOG.info("Credentials are invalid or about to expire.  New Login Required.")
+            logger.info{"Credentials are invalid or about to expire.  New Login Required."}
             return null
         }
         return Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), credential).build()
     }
 
     override fun delete(targetPath: String, user: CloudBackEncUser): Boolean {
-        LOG.info("Google Drive delete called")
+        logger.info{"Google Drive delete called"}
         //TODO implement
         val drive = buildDrive(user.username) ?: return false
         throw UnsupportedOperationException("not implemented")
@@ -60,7 +59,7 @@ class GoogleDriveFileIOService : CloudServiceFileIOService {
 
     }
     override fun upload(filePath: File, uploadedFilePath: Path, user: CloudBackEncUser): CloudServiceFile? {
-        LOG.info("Google Drive upload called")
+        logger.trace{"Google Drive upload called"}
         //TODO implement
         val drive = buildDrive(user.username) ?: return null
         val driveFile = com.google.api.services.drive.model.File()
@@ -79,14 +78,14 @@ class GoogleDriveFileIOService : CloudServiceFileIOService {
     }
 
     override fun list(dirPath: String, user: CloudBackEncUser): List<CloudServiceFile> {
-        LOG.info("Google Drive list called")
+        logger.info{"Google Drive list called"}
         //TODO implement
         throw UnsupportedOperationException("not implemented")
 
     }
 
     override fun download(filePath: String, user: CloudBackEncUser): InputStream {
-        LOG.info("Google Drive download called")
+        logger.info{"Google Drive download called"}
         //TODO implement
         throw UnsupportedOperationException("not implemented")
     }

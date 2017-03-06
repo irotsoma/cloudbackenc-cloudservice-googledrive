@@ -26,7 +26,7 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceCallbackURL
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceException
-import com.irotsoma.cloudbackenc.common.logger
+import mu.KLogging
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -42,7 +42,8 @@ import java.net.URL
  * @param receiver A [VerificationCodeReceiver] object to be used by the superclass
  */
 class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver ) : AuthorizationCodeInstalledApp(flow, receiver) {
-    companion object { val LOG by logger() }
+    /** kotlin-logging implementation*/
+    companion object: KLogging()
     /**
      * The url of the calling application that will present the authorization URL to the user.
      */
@@ -55,17 +56,17 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
      */
     override fun onAuthorization(authorizationUrl: AuthorizationCodeRequestUrl?) {
         if (authorizationUrl != null && authorizationCallbackUrl != null) {
-            LOG.debug("Attempting callback to URL:  "+{authorizationCallbackUrl.toString()})
+            logger.debug{"Attempting callback to URL:  "+{authorizationCallbackUrl.toString()}}
             val currentAuthorizationURL = URL(authorizationUrl.build())
-            LOG.debug("Google authorization URL:  "+{currentAuthorizationURL.toString()})
+            logger.debug{"Google authorization URL:  "+{currentAuthorizationURL.toString()}}
 
             val restTemplate = RestTemplate()
             val requestHeaders = HttpHeaders()
             requestHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(GoogleDriveCloudServiceFactory.extensionUUID.toString(), currentAuthorizationURL.toString()), requestHeaders)
             val callResponse = restTemplate.postForEntity(authorizationCallbackUrl.toString(), httpEntity, CloudServiceCallbackURL::class.java)
-            LOG.debug("Callback response code:  "+callResponse.statusCode)
-            LOG.debug("Callback response message:  "+callResponse.statusCodeValue)
+            logger.debug{"Callback response code:  "+callResponse.statusCode}
+            logger.debug{"Callback response message:  "+callResponse.statusCodeValue}
             if (callResponse.statusCode != HttpStatus.ACCEPTED){
                 throw CloudServiceException("Error accessing call back address for authorization URL:  ${callResponse.statusCode} -- ${callResponse.statusCodeValue}")
             }

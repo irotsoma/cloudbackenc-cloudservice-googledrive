@@ -24,7 +24,7 @@ buildscript {
     ext.googleApiVersion = '1.22.0'
     ext.googleDriveApiVersion = 'v3-rev56-1.22.0'
     ext.junitVersion = '4.12'
-
+    ext.kotlinLoggingVersion = '1.4.3'
 
     repositories {
         mavenCentral()
@@ -63,6 +63,8 @@ dependencies {
     compile "com.google.apis:google-api-services-drive:$googleDriveApiVersion"
     compile "com.google.api-client:google-api-client-java6:$googleApiVersion"
     compile "com.google.oauth-client:google-oauth-client-jetty:$googleApiVersion"
+    //logging
+    compile "io.github.microutils:kotlin-logging:$kotlinLoggingVersion"
     testCompile "junit:junit:$junitVersion"
 
 }
