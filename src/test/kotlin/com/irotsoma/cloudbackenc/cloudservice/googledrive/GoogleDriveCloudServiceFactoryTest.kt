@@ -14,5 +14,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-rootProject.name = 'cloudservice-googledrive'
+package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
+import org.junit.Test
+
+/**
+ * @author Justin Zak
+ */
+class GoogleDriveCloudServiceFactoryTest{
+    @Test
+    fun createFactory() {
+        GoogleDriveCloudServiceFactory()
+    }
+}

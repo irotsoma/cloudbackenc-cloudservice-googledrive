@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Irotsoma, LLC
+ * Copyright (C) 2016-2017  Irotsoma, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,10 +27,7 @@ import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServi
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFileIOService
 import java.util.*
 
-/**
- * The name of the resource file that contains the extension configuration
- */
-private const val EXTENSION_CONFIG_FILE_PATH = "cloud-service-extension.json"
+
 /**
  * Service Factory for Google Drive
  *
@@ -39,7 +36,17 @@ private const val EXTENSION_CONFIG_FILE_PATH = "cloud-service-extension.json"
 
 class GoogleDriveCloudServiceFactory: CloudServiceFactory {
     companion object {
+        /**
+         * The name of the resource file that contains the extension configuration
+         */
+        private const val EXTENSION_CONFIG_FILE_PATH = "cloud-service-extension.json"
+        /**
+         * Contains the extension UUID pulled from the config json file
+         */
         lateinit var extensionUUID: UUID
+        /**
+         * Contains the extension name pulled from the config json file
+         */
         lateinit var extensionName: String
     }
     /**
