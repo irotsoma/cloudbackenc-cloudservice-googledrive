@@ -29,7 +29,7 @@ class GoogleDriveAuthenticationServiceTest {
     fun login() {
         val factory = GoogleDriveCloudServiceFactory()
         val loginState = factory.authenticationService.login(CloudServiceUser("test",null,GoogleDriveCloudServiceFactory.extensionUUID.toString(),null), CloudBackEncUser("test",CloudBackEncUser.PASSWORD_MASKED,null,true,listOf(CloudBackEncRoles.ROLE_TEST)))
-        assert(loginState == CloudServiceUser.STATE.LOGGED_IN)
+        assert(loginState == CloudServiceUser.STATE.TEST)
     }
 
     @Test

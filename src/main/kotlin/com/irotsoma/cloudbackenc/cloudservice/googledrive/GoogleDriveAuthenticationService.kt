@@ -88,7 +88,7 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
         logger.info{"Google Drive Login"}
         //for integration testing
         if ((cloudBackEncUser.username == "test") || (cloudBackEncUser.roles.contains(CloudBackEncRoles.ROLE_TEST))){
-            return CloudServiceUser.STATE.LOGGED_IN
+            return CloudServiceUser.STATE.TEST
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
         if (cloudServiceUser.serviceUuid != GoogleDriveCloudServiceFactory.extensionUUID.toString()){
