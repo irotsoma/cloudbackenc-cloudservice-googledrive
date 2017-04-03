@@ -45,7 +45,7 @@ class GoogleDriveCloudServiceFactory: CloudServiceFactory {
     /**
      * Contains the extension UUID pulled from the config json file
      */
-    override lateinit var extensionUUID: UUID
+    override lateinit var extensionUuid: UUID
     /**
      * Contains the extension name pulled from the config json file
      */
@@ -60,9 +60,9 @@ class GoogleDriveCloudServiceFactory: CloudServiceFactory {
         val mapper = ObjectMapper().registerModule(KotlinModule())
         val mapperData: CloudServiceExtensionConfig = mapper.readValue(jsonValue)
         //add values to variables for consumption later
-        extensionUUID = UUID.fromString(mapperData.serviceUUID)
+        extensionUuid = UUID.fromString(mapperData.serviceUuid)
         extensionName = mapperData.serviceName
     }
-    override val authenticationService: CloudServiceAuthenticationService = GoogleDriveAuthenticationService()
-    override val cloudServiceFileIOService: CloudServiceFileIOService = GoogleDriveFileIOService()
+    override val authenticationService: CloudServiceAuthenticationService = GoogleDriveAuthenticationService(this)
+    override val cloudServiceFileIOService: CloudServiceFileIOService = GoogleDriveFileIOService(this)
 }

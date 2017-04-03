@@ -25,6 +25,7 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceCallbackURL
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceException
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFactory
 import mu.KLogging
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -40,7 +41,7 @@ import java.net.URL
  * @param flow An [AuthorizationCodeFlow] object to be used by the superclass
  * @param receiver A [VerificationCodeReceiver] object to be used by the superclass
  */
-class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver ) : AuthorizationCodeInstalledApp(flow, receiver) {
+class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver, var factory:CloudServiceFactory ) : AuthorizationCodeInstalledApp(flow, receiver) {
     /** kotlin-logging implementation*/
     companion object: KLogging()
     /**
@@ -62,7 +63,7 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
             val restTemplate = RestTemplate()
             val requestHeaders = HttpHeaders()
             requestHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(GoogleDriveCloudServiceFactory.extensionUUID.toString(), currentAuthorizationURL.toString()), requestHeaders)
+            val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(factory.extensionUuid.toString(), currentAuthorizationURL.toString()), requestHeaders)
             val callResponse = restTemplate.postForEntity(authorizationCallbackUrl.toString(), httpEntity, CloudServiceCallbackURL::class.java)
             logger.debug{"Callback response code:  "+callResponse.statusCode}
             logger.debug{"Callback response message:  "+callResponse.statusCodeValue}

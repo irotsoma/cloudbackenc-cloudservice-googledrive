@@ -28,10 +28,7 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.drive.DriveScopes
 import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceAuthenticationRefreshListener
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceAuthenticationService
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceException
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceUser
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.*
 import mu.KLogging
 import java.io.File
 import java.io.IOException
@@ -45,15 +42,14 @@ import java.net.URL
  * @author Justin Zak
  */
 
-class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
+class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) : CloudServiceAuthenticationService(factory) {
 
     override var cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener? = null
 
     /**kotlin-logging implementation*/
     companion object: KLogging() {
-
         val credentialStorageLocation = File(System.getProperty("user.home"), ".credentials/cloudbackenc/googledrive")
-        fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?): GoogleAuthorizationCodeFlow {
+        fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?,factory: CloudServiceFactory): GoogleAuthorizationCodeFlow {
             //make sure client ID and client secret are populated, otherwise the developer (probably you) forgot to add them
             if (GoogleDriveSettings.clientId == null || GoogleDriveSettings.clientSecret == null) {
                 throw CloudServiceException("Google Drive client ID or secret is null.  This must be populated in the GoogleDriveSettings before building the extension.")
@@ -75,7 +71,7 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
             val dataStoreFactory = FileDataStoreFactory(credentialStorageLocation)
 
             //use an offline access type to allow for getting a refresh key so the user doesn't need to authorize every time we connect
-            return GoogleAuthorizationCodeFlow.Builder(transport, jsonFactory, clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataStoreFactory).setAccessType("offline").addRefreshListener(GoogleCredentialRefreshListener(cloudServiceAuthenticationRefreshListener)).build()
+            return GoogleAuthorizationCodeFlow.Builder(transport, jsonFactory, clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataStoreFactory).setAccessType("offline").addRefreshListener(GoogleCredentialRefreshListener(cloudServiceAuthenticationRefreshListener, factory)).build()
         }
     }
 
@@ -91,19 +87,18 @@ class GoogleDriveAuthenticationService : CloudServiceAuthenticationService {
             return CloudServiceUser.STATE.TEST
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
-        if (cloudServiceUser.serviceUuid != GoogleDriveCloudServiceFactory.extensionUUID.toString()){
+        if (cloudServiceUser.serviceUuid != factory.extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
-        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener)
+        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,factory)
 
         //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
-        val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver())
+        val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver(), factory)
         try {
             handler.authorize(cloudBackEncUser.username, URL(cloudServiceUser.authorizationCallbackURL))
         }catch (e: IOException){
             throw CloudServiceException("Error during authorization process: ${e.message}", e)
         }
-
         return CloudServiceUser.STATE.AWAITING_AUTHORIZATION
     }
     override fun logoff(cloudServiceUser: CloudServiceUser): CloudServiceUser.STATE {
