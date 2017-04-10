@@ -95,11 +95,15 @@ class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) 
         //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
         val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver(), factory)
         try {
-            handler.authorize(cloudBackEncUser.username, URL(cloudServiceUser.authorizationCallbackURL))
+            val response = handler.authorize(cloudBackEncUser.username, URL(cloudServiceUser.authorizationCallbackURL))
+            if (response?.accessToken != null) {
+                return CloudServiceUser.STATE.LOGGED_IN
+            } else {
+                return CloudServiceUser.STATE.ERROR
+            }
         }catch (e: IOException){
             throw CloudServiceException("Error during authorization process: ${e.message}", e)
         }
-        return CloudServiceUser.STATE.AWAITING_AUTHORIZATION
     }
     override fun logoff(cloudServiceUser: CloudServiceUser): CloudServiceUser.STATE {
         logger.info{"Google Drive Logout"}

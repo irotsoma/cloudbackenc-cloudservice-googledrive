@@ -32,6 +32,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestTemplate
+import java.io.IOException
 import java.net.URL
 
 /**
@@ -41,7 +42,7 @@ import java.net.URL
  * @param flow An [AuthorizationCodeFlow] object to be used by the superclass
  * @param receiver A [VerificationCodeReceiver] object to be used by the superclass
  */
-class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver, var factory:CloudServiceFactory ) : AuthorizationCodeInstalledApp(flow, receiver) {
+open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver, var factory:CloudServiceFactory ) : AuthorizationCodeInstalledApp(flow, receiver) {
     /** kotlin-logging implementation*/
     companion object: KLogging()
     /**
@@ -66,9 +67,9 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
             val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(factory.extensionUuid.toString(), currentAuthorizationURL.toString()), requestHeaders)
             val callResponse = restTemplate.postForEntity(authorizationCallbackUrl.toString(), httpEntity, CloudServiceCallbackURL::class.java)
             logger.debug{"Callback response code:  "+callResponse.statusCode}
-            logger.debug{"Callback response message:  "+callResponse.statusCodeValue}
+            logger.debug{"Callback response message:  "+callResponse.statusCode?.name}
             if (callResponse.statusCode != HttpStatus.ACCEPTED){
-                throw CloudServiceException("Error accessing call back address for authorization URL:  ${callResponse.statusCode} -- ${callResponse.statusCodeValue}")
+                throw CloudServiceException("Error accessing call back address for authorization URL:  ${callResponse.statusCode} -- ${callResponse.statusCode?.name}")
             }
         } else {
             super.onAuthorization(authorizationUrl)
@@ -78,12 +79,41 @@ class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver
     /**
      * Stores the callback url from the calling application and calls the superclass's authorize function.
      *
-     * @param userID The user ID for the CloudBackEnc user
+     * @param userId The user ID for the CloudBackEnc user
      * @param authorizationCallbackUrl The callback URL that will be used if the authorize call requires the user to navigate to an external site to finish the authorization process
      */
-    fun authorize(userID:String, authorizationCallbackUrl: URL?) : Credential?{
+    fun authorize(userId:String, authorizationCallbackUrl: URL?) : Credential?{
         this.authorizationCallbackUrl = authorizationCallbackUrl
-        return authorize(userID)
+        return authorize(userId)
     }
 
+    override fun authorize(userId:String):  Credential? {
+        try {
+            val credential = flow.loadCredential(userId)
+            if (credential != null && (credential.refreshToken != null || credential.expiresInSeconds > 60)) {
+                return credential
+            }
+            // open in browser
+            val redirectUri = receiver.redirectUri
+            val authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectUri)
+            onAuthorization(authorizationUrl)
+            // receive authorization code and exchange it for an access token
+            logger.debug("Waiting for user login.")
+            val code = receiver.waitForCode()
+            logger.debug("Wait for code returned.")
+            val response = flow.newTokenRequest(code).setRedirectUri(redirectUri).execute()
+            //store credentials
+            val outputCredential = flow.createAndStoreCredential(response, userId)
+            //call all of the refresh listeners
+            flow?.refreshListeners?.forEach { it?.onTokenResponse(outputCredential, response) }
+            return outputCredential
+        } catch (e:IOException){
+            if (e.message?.contains("User authorization failed")?:false){
+                flow?.refreshListeners?.forEach{it?.onTokenErrorResponse(null, null)}
+            }
+            throw e
+        }finally {
+            receiver.stop()
+        }
+    }
 }

@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-/**
+/*
  * Created by irotsoma on 2/1/17.
  */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
@@ -38,7 +38,7 @@ class GoogleCredentialRefreshListener(val changeListener:CloudServiceAuthenticat
     }
 
     override fun onTokenResponse(credential: Credential?, tokenResponse: TokenResponse?) {
-        if (tokenResponse?.accessToken.isNullOrEmpty()) {
+        if (!tokenResponse?.accessToken.isNullOrEmpty()) {
             changeListener?.onChange(factory.extensionUuid, CloudServiceUser.STATE.LOGGED_IN)
         } else {
             changeListener?.onChange(factory.extensionUuid, CloudServiceUser.STATE.LOGGED_OUT)
