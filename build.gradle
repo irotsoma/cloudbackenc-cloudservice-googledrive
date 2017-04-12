@@ -85,7 +85,9 @@ if (!isReleaseVersion) {
         }
     }
 }
-
+compileKotlin {
+    kotlinOptions.jvmTarget= "1.8"
+}
 sourceSets {
     main {
         java{
