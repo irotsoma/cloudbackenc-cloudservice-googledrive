@@ -30,6 +30,13 @@ import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.*
 import mu.KLogging
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.util.MultiValueMap
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.io.IOException
 import java.net.URL
@@ -49,6 +56,7 @@ class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) 
     /**kotlin-logging implementation*/
     companion object: KLogging() {
         val credentialStorageLocation = File(System.getProperty("user.home"), ".credentials/cloudbackenc/googledrive")
+        private val googleOauthRevokeUrl = "https://accounts.google.com/o/oauth2/revoke"
         fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?,factory: CloudServiceFactory): GoogleAuthorizationCodeFlow {
             //make sure client ID and client secret are populated, otherwise the developer (probably you) forgot to add them
             if (GoogleDriveSettings.clientId == null || GoogleDriveSettings.clientSecret == null) {
@@ -75,7 +83,7 @@ class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) 
         }
     }
 
-    override fun isLoggedIn(cloudServiceUser: CloudServiceUser): Boolean {
+    override fun isLoggedIn(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): Boolean {
         logger.info{"Google Drive isLoggedIn"}
         //TODO: Implement this
         return false
@@ -105,12 +113,45 @@ class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) 
             throw CloudServiceException("Error during authorization process: ${e.message}", e)
         }
     }
-    override fun logoff(cloudServiceUser: CloudServiceUser): CloudServiceUser.STATE {
+    override fun logout(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): CloudServiceUser.STATE {
         logger.info{"Google Drive Logout"}
-
-        //TODO: Implement this
-
-
+        //Verify that the user.serviceUUID is the same as the UUID for the current extension.
+        if (cloudServiceUser.serviceUuid != factory.extensionUuid.toString()){
+            throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
+        }
+        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,factory)
+        val credential = flow.loadCredential(cloudBackEncUser.username)
+        val restTemplate = RestTemplate()
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
+        val request = HttpEntity<MultiValueMap<String, String>>(headers)
+        val urlBuilder = UriComponentsBuilder.fromHttpUrl(googleOauthRevokeUrl)
+                .queryParam("token",credential.accessToken)
+        val url = urlBuilder.build().encode().toUri()
+        try {
+            val result = restTemplate.postForEntity(url, request, String::class.java)
+            logger.debug { "Oauth revoke response code:  ${result.statusCode} -- ${result.statusCode?.name}" }
+            logger.debug { "Oauth revoke response body:  ${result.body}" }
+        } catch(e: HttpClientErrorException){
+            logger.warn{"Error revoking access token:  ${e.message}"}
+            logger.warn{ e.responseBodyAsString }
+            //if access token is expired it will throw this error so try also revoking the refresh token
+            //Note that the refresh token is explicitly revoked when an access token is successfully revoked so this is only necessary in this case.
+            val urlBuilder2 = UriComponentsBuilder.fromHttpUrl(googleOauthRevokeUrl)
+                    .queryParam("token",credential.refreshToken)
+            val url2 = urlBuilder2.build().encode().toUri()
+            try {
+                val result = restTemplate.postForEntity(url2, request, String::class.java)
+                logger.debug { "Oauth revoke response code:  ${result.statusCode} -- ${result.statusCode?.name}" }
+                logger.debug { "Oauth revoke response body:  ${result.body}" }
+            } catch(e: HttpClientErrorException){
+                logger.warn{"Error revoking refresh token:  ${e.message}"}
+                logger.warn{ e.responseBodyAsString }
+                //if both revokes failed then just ignore it and delete the token locally
+            }
+        }
+        flow.credentialDataStore?.delete(cloudBackEncUser.username)
+        cloudServiceAuthenticationRefreshListener?.onChange(factory.extensionUuid,CloudServiceUser.STATE.LOGGED_OUT)
         return CloudServiceUser.STATE.LOGGED_OUT
     }
 }
