@@ -16,7 +16,7 @@
 
 buildscript {
     ext.commonVersion = '0.2-SNAPSHOT'
-    ext.kotlinVersion = '1.1.1'
+    ext.kotlinVersion = '1.1.2'
     ext.dokkaVersion = '0.9.13'
     ext.jacksonVersion = '2.8.6'
     ext.springWebVersion ='4.3.7.RELEASE'
