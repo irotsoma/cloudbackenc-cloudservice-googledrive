@@ -27,7 +27,7 @@ buildscript {
 
     repositories {
         mavenCentral()
-        maven {url 'http://repo.spring.io/plugins-release'}
+        jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
