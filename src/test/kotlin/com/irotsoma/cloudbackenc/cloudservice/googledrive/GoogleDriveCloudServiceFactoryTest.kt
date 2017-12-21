@@ -17,6 +17,7 @@
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import org.junit.Test
+import java.util.*
 
 /**
  * @author Justin Zak
@@ -24,6 +25,6 @@ import org.junit.Test
 class GoogleDriveCloudServiceFactoryTest{
     @Test
     fun createFactory() {
-        GoogleDriveCloudServiceFactory()
+        GoogleDriveCloudServiceFactory(UUID.fromString("1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375"))
     }
 }

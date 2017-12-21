@@ -15,8 +15,8 @@
  */
 
 buildscript {
-    ext.commonVersion = '0.2-SNAPSHOT'
-    ext.kotlinVersion = '1.1.51'
+    ext.commonVersion = '0.3-SNAPSHOT'
+    ext.kotlinVersion = '1.2.10'
     ext.dokkaVersion = '0.9.15'
     ext.jacksonVersion = '2.8.9'
     ext.springWebVersion ='4.3.9.RELEASE'
@@ -42,7 +42,7 @@ plugins {
 }
 
 group 'com.irotsoma.cloudbackenc.cloudservice'
-version '0.2-SNAPSHOT'
+version '0.3-SNAPSHOT'
 def secretFolder = "$rootDir/../secret"
 apply plugin: 'java'
 apply plugin: 'kotlin'

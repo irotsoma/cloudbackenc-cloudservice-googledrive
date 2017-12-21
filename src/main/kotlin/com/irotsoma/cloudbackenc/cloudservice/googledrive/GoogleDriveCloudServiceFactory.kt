@@ -21,10 +21,9 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceAuthenticationService
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceExtensionConfig
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFactory
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFileIOService
+import com.irotsoma.cloudbackenc.common.Extension
+import com.irotsoma.cloudbackenc.common.ExtensionFactory
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.*
 import java.util.*
 
 
@@ -34,35 +33,8 @@ import java.util.*
  * @author Justin Zak
  */
 
-class GoogleDriveCloudServiceFactory: CloudServiceFactory {
-    companion object {
-        /**
-         * The name of the resource file that contains the extension configuration
-         */
-        private const val EXTENSION_CONFIG_FILE_PATH = "cloud-service-extension.json"
+class GoogleDriveCloudServiceFactory(override val extensionUuid: UUID) : CloudServiceFactory {
 
-    }
-    /**
-     * Contains the extension UUID pulled from the config json file
-     */
-    override lateinit var extensionUuid: UUID
-    /**
-     * Contains the extension name pulled from the config json file
-     */
-    override lateinit var extensionName: String
-    /**
-     * Reads the config file to get the UUID and Name of the current extension.
-     */
-    init {
-        //get Json config file data
-        val configFileStream = this::class.java.classLoader.getResourceAsStream(EXTENSION_CONFIG_FILE_PATH)
-        val jsonValue = configFileStream.reader().readText()
-        val mapper = ObjectMapper().registerModule(KotlinModule())
-        val mapperData: CloudServiceExtensionConfig = mapper.readValue(jsonValue)
-        //add values to variables for consumption later
-        extensionUuid = UUID.fromString(mapperData.serviceUuid)
-        extensionName = mapperData.serviceName
-    }
-    override val authenticationService: CloudServiceAuthenticationService = GoogleDriveAuthenticationService(this)
-    override val cloudServiceFileIOService: CloudServiceFileIOService = GoogleDriveFileIOService(this)
+    override val authenticationService: CloudServiceAuthenticationService = GoogleDriveAuthenticationService(extensionUuid)
+    override val cloudServiceFileIOService: CloudServiceFileIOService = GoogleDriveFileIOService(extensionUuid)
 }

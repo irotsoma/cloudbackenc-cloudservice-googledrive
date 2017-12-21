@@ -29,15 +29,16 @@ import mu.KLogging
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
+import java.util.*
 
-class GoogleDriveFileIOService(factory: GoogleDriveCloudServiceFactory) : CloudServiceFileIOService(factory) {
+class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(extensionUuid) {
     /** kotlin-logging implementation*/
     companion object: KLogging() {
         const val PARENT_DIRECTORY = "CloudBackEncFiles"
         const val MIME_TYPE = "application/octet-stream"
     }
 
-    val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null, factory)
+    val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null, extensionUuid)
 
     fun buildDrive(userId: String): Drive? {
         val credential = flow.loadCredential(userId)

@@ -34,6 +34,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.client.RestTemplate
 import java.io.IOException
 import java.net.URL
+import java.util.*
 
 /**
  * Modified AuthorizationCodeInstalledApp class which when an authorization URL is returned, calls the callback URL provided if applicable
@@ -42,7 +43,7 @@ import java.net.URL
  * @param flow An [AuthorizationCodeFlow] object to be used by the superclass
  * @param receiver A [VerificationCodeReceiver] object to be used by the superclass
  */
-open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver, var factory:CloudServiceFactory ) : AuthorizationCodeInstalledApp(flow, receiver) {
+open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver, var extensionUuid:UUID ) : AuthorizationCodeInstalledApp(flow, receiver) {
     /** kotlin-logging implementation*/
     companion object: KLogging()
     /**
@@ -63,11 +64,11 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
             val restTemplate = RestTemplate()
             val requestHeaders = HttpHeaders()
             requestHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(factory.extensionUuid.toString(), currentAuthorizationURL.toString()), requestHeaders)
+            val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(extensionUuid.toString(), currentAuthorizationURL.toString()), requestHeaders)
             val callResponse = restTemplate.postForEntity(authorizationCallbackUrl.toString(), httpEntity, CloudServiceCallbackURL::class.java)
             logger.debug{"Callback response:  ${callResponse.statusCode} -- ${callResponse.statusCode?.name}"}
             if (callResponse.statusCode != HttpStatus.ACCEPTED){
-                throw CloudServiceException("Error accessing call back address for authorization URL:  ${callResponse.statusCode} -- ${callResponse.statusCode?.name}")
+                throw CloudServiceException("Error accessing call back address for authorization URL:  ${callResponse.statusCode} -- ${callResponse.statusCode.name}")
             }
         } else {
             super.onAuthorization(authorizationUrl)
@@ -107,7 +108,7 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
             flow.refreshListeners?.forEach { it.onTokenResponse(outputCredential, response) }
             return outputCredential
         } catch (e:IOException){
-            if (e.message?.contains("User authorization failed")?:false){
+            if (e.message?.contains("User authorization failed") == true){
                 flow?.refreshListeners?.forEach{it?.onTokenErrorResponse(null, null)}
             }
             throw e

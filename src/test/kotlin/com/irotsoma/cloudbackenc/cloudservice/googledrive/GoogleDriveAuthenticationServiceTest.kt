@@ -18,8 +18,11 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
+import com.irotsoma.cloudbackenc.common.Extension
+import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceExtension
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceUser
 import org.junit.Test
+import java.util.*
 
 /**
  * @author Justin Zak
@@ -27,8 +30,11 @@ import org.junit.Test
 class GoogleDriveAuthenticationServiceTest {
     @Test
     fun login() {
-        val factory = GoogleDriveCloudServiceFactory()
-        val loginState = factory.authenticationService.login(CloudServiceUser("test",null,factory.extensionUuid.toString(),null), CloudBackEncUser("test",CloudBackEncUser.PASSWORD_MASKED,null,true,listOf(CloudBackEncRoles.ROLE_TEST)))
+
+
+        val extension = CloudServiceExtension(UUID.fromString("1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375"),"Google Drive",0, GoogleDriveCloudServiceFactory::class)
+        val factory = GoogleDriveCloudServiceFactory(UUID.fromString("1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375"))
+        val loginState = factory.authenticationService.login(CloudServiceUser("test",null,"1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375",null), CloudBackEncUser("test",CloudBackEncUser.PASSWORD_MASKED,null,true,listOf(CloudBackEncRoles.ROLE_TEST)))
         assert(loginState == CloudServiceUser.STATE.TEST)
     }
 

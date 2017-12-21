@@ -40,6 +40,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.io.IOException
 import java.net.URL
+import java.util.*
 
 /**
  * Created by irotsoma on 6/19/2016.
@@ -49,7 +50,7 @@ import java.net.URL
  * @author Justin Zak
  */
 
-class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) : CloudServiceAuthenticationService(factory) {
+class GoogleDriveAuthenticationService(extensionUuid: UUID) : CloudServiceAuthenticationService(extensionUuid) {
 
     override var cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener? = null
 
@@ -57,7 +58,7 @@ class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) 
     companion object: KLogging() {
         val credentialStorageLocation = File(System.getProperty("user.home"), ".credentials/cloudbackenc/googledrive")
         private val googleOauthRevokeUrl = "https://accounts.google.com/o/oauth2/revoke"
-        fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?,factory: CloudServiceFactory): GoogleAuthorizationCodeFlow {
+        fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?,extensionUuid: UUID): GoogleAuthorizationCodeFlow {
             //make sure client ID and client secret are populated, otherwise the developer (probably you) forgot to add them
             if (GoogleDriveSettings.clientId == null || GoogleDriveSettings.clientSecret == null) {
                 throw CloudServiceException("Google Drive client ID or secret is null.  This must be populated in the GoogleDriveSettings before building the extension.")
@@ -79,7 +80,7 @@ class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) 
             val dataStoreFactory = FileDataStoreFactory(credentialStorageLocation)
 
             //use an offline access type to allow for getting a refresh key so the user doesn't need to authorize every time we connect
-            return GoogleAuthorizationCodeFlow.Builder(transport, jsonFactory, clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataStoreFactory).setAccessType("offline").addRefreshListener(GoogleCredentialRefreshListener(cloudServiceAuthenticationRefreshListener, factory)).build()
+            return GoogleAuthorizationCodeFlow.Builder(transport, jsonFactory, clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataStoreFactory).setAccessType("offline").addRefreshListener(GoogleCredentialRefreshListener(cloudServiceAuthenticationRefreshListener, extensionUuid)).build()
         }
     }
 
@@ -95,13 +96,13 @@ class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) 
             return CloudServiceUser.STATE.TEST
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
-        if (cloudServiceUser.serviceUuid != factory.extensionUuid.toString()){
+        if (cloudServiceUser.serviceUuid != extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
-        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,factory)
+        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid)
 
         //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
-        val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver(), factory)
+        val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver(), extensionUuid)
         try {
             val response = handler.authorize(cloudBackEncUser.username, URL(cloudServiceUser.authorizationCallbackURL))
             if (response?.accessToken != null) {
@@ -116,10 +117,10 @@ class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) 
     override fun logout(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): CloudServiceUser.STATE {
         logger.info{"Google Drive Logout"}
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
-        if (cloudServiceUser.serviceUuid != factory.extensionUuid.toString()){
+        if (cloudServiceUser.serviceUuid != extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
-        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,factory)
+        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid)
         val credential = flow.loadCredential(cloudBackEncUser.username)
         val restTemplate = RestTemplate()
         val headers = HttpHeaders()
@@ -151,7 +152,7 @@ class GoogleDriveAuthenticationService(factory: GoogleDriveCloudServiceFactory) 
             }
         }
         flow.credentialDataStore?.delete(cloudBackEncUser.username)
-        cloudServiceAuthenticationRefreshListener?.onChange(factory.extensionUuid,CloudServiceUser.STATE.LOGGED_OUT)
+        cloudServiceAuthenticationRefreshListener?.onChange(extensionUuid,CloudServiceUser.STATE.LOGGED_OUT)
         return CloudServiceUser.STATE.LOGGED_OUT
     }
 }

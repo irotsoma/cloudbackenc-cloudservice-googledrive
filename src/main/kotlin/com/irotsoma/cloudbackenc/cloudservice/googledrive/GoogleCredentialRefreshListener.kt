@@ -23,25 +23,25 @@ import com.google.api.client.auth.oauth2.CredentialRefreshListener
 import com.google.api.client.auth.oauth2.TokenErrorResponse
 import com.google.api.client.auth.oauth2.TokenResponse
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceAuthenticationRefreshListener
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFactory
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceUser
+import java.util.*
 
 /**
  *
  *
  * @author Justin Zak
  */
-class GoogleCredentialRefreshListener(val changeListener:CloudServiceAuthenticationRefreshListener?, val factory: CloudServiceFactory) : CredentialRefreshListener {
+class GoogleCredentialRefreshListener(val changeListener:CloudServiceAuthenticationRefreshListener?, val extensionUuid: UUID) : CredentialRefreshListener {
 
     override fun onTokenErrorResponse(credential: Credential?, tokenErrorResponse: TokenErrorResponse?) {
-        changeListener?.onChange(factory.extensionUuid, CloudServiceUser.STATE.ERROR)
+        changeListener?.onChange(extensionUuid, CloudServiceUser.STATE.ERROR)
     }
 
     override fun onTokenResponse(credential: Credential?, tokenResponse: TokenResponse?) {
         if (!tokenResponse?.accessToken.isNullOrEmpty()) {
-            changeListener?.onChange(factory.extensionUuid, CloudServiceUser.STATE.LOGGED_IN)
+            changeListener?.onChange(extensionUuid, CloudServiceUser.STATE.LOGGED_IN)
         } else {
-            changeListener?.onChange(factory.extensionUuid, CloudServiceUser.STATE.LOGGED_OUT)
+            changeListener?.onChange(extensionUuid, CloudServiceUser.STATE.LOGGED_OUT)
         }
     }
 }
