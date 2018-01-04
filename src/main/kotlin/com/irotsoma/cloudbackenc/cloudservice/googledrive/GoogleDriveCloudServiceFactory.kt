@@ -18,14 +18,7 @@
  */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.irotsoma.cloudbackenc.common.Extension
-import com.irotsoma.cloudbackenc.common.ExtensionConfig
-import com.irotsoma.cloudbackenc.common.ExtensionFactory
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.*
-import java.util.*
 
 
 /**
