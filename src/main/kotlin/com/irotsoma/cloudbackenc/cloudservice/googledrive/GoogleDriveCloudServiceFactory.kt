@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.irotsoma.cloudbackenc.common.Extension
+import com.irotsoma.cloudbackenc.common.ExtensionConfig
 import com.irotsoma.cloudbackenc.common.ExtensionFactory
 import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.*
 import java.util.*
@@ -33,7 +34,7 @@ import java.util.*
  * @author Justin Zak
  */
 
-class GoogleDriveCloudServiceFactory(override val extensionUuid: UUID) : CloudServiceFactory {
+class GoogleDriveCloudServiceFactory : CloudServiceFactory() {
 
     override val authenticationService: CloudServiceAuthenticationService = GoogleDriveAuthenticationService(extensionUuid)
     override val cloudServiceFileIOService: CloudServiceFileIOService = GoogleDriveFileIOService(extensionUuid)

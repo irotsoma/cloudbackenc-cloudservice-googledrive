@@ -60,7 +60,6 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
     }
     override fun upload(filePath: File, uploadedFilePath: Path, user: CloudBackEncUser): CloudServiceFile? {
         logger.trace{"Google Drive upload called"}
-        //TODO implement
         val drive = buildDrive(user.username) ?: return null
         val driveFile = com.google.api.services.drive.model.File()
         driveFile.name = uploadedFilePath.fileName.toString()

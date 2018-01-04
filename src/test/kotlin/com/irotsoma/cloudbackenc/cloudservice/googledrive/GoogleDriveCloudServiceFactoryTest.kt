@@ -25,6 +25,6 @@ import java.util.*
 class GoogleDriveCloudServiceFactoryTest{
     @Test
     fun createFactory() {
-        GoogleDriveCloudServiceFactory(UUID.fromString("1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375"))
+        GoogleDriveCloudServiceFactory()
     }
 }

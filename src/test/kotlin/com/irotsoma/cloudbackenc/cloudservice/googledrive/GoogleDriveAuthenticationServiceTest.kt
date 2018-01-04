@@ -31,9 +31,8 @@ class GoogleDriveAuthenticationServiceTest {
     @Test
     fun login() {
 
-
-        val extension = CloudServiceExtension(UUID.fromString("1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375"),"Google Drive",0, GoogleDriveCloudServiceFactory::class)
-        val factory = GoogleDriveCloudServiceFactory(UUID.fromString("1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375"))
+        val extension = CloudServiceExtension(UUID.fromString("1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375"),"Google Drive",0, GoogleDriveCloudServiceFactory::class.java)
+        val factory = extension.factoryClass.newInstance()
         val loginState = factory.authenticationService.login(CloudServiceUser("test",null,"1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375",null), CloudBackEncUser("test",CloudBackEncUser.PASSWORD_MASKED,null,true,listOf(CloudBackEncRoles.ROLE_TEST)))
         assert(loginState == CloudServiceUser.STATE.TEST)
     }

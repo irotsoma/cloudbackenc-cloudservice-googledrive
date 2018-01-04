@@ -17,8 +17,7 @@
 buildscript {
     ext.commonVersion = '0.3-SNAPSHOT'
     ext.kotlinVersion = '1.2.10'
-    ext.dokkaVersion = '0.9.15'
-    ext.jacksonVersion = '2.8.9'
+    ext.dokkaVersion = '0.9.14'
     ext.springWebVersion ='4.3.9.RELEASE'
     ext.googleApiVersion = '1.23.0'
     ext.googleDriveApiVersion = 'v3-rev87-1.23.0'
@@ -62,7 +61,6 @@ dependencies {
     compile "com.irotsoma.cloudbackenc:common:$commonVersion"
     compile "com.irotsoma.cloudbackenc.common:cloudservicesserviceinterface:$commonVersion"
     compile "org.springframework:spring-web:$springWebVersion"
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
     compile "com.google.apis:google-api-services-drive:$googleDriveApiVersion"
     compile "com.google.api-client:google-api-client-java6:$googleApiVersion"
     compile "com.google.oauth-client:google-oauth-client-jetty:$googleApiVersion"
