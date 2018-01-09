@@ -59,7 +59,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     compile "com.irotsoma.cloudbackenc:common:$commonVersion"
-    compile "com.irotsoma.cloudbackenc.common:cloudservicesserviceinterface:$commonVersion"
+    compile "com.irotsoma.cloudbackenc.common:cloudservices:$commonVersion"
     compile "org.springframework:spring-web:$springWebVersion"
     compile "com.google.apis:google-api-services-drive:$googleDriveApiVersion"
     compile "com.google.api-client:google-api-client-java6:$googleApiVersion"

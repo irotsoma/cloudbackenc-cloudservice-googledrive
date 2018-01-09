@@ -18,7 +18,7 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
 import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceUser
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceUser
 import org.junit.Test
 
 /**

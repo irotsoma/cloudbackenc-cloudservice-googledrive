@@ -22,9 +22,10 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.http.FileContent
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
+import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFile
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceFileIOService
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceFile
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceFileIOService
 import mu.KLogging
 import java.io.File
 import java.io.InputStream
@@ -51,6 +52,9 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
 
     override fun delete(targetPath: String, user: CloudBackEncUser): Boolean {
         logger.info{"Google Drive delete called"}
+        if ((user.username == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+            GoogleDriveAuthenticationService.isTest=true
+        }
         //TODO implement
         val drive = buildDrive(user.username) ?: return false
         throw UnsupportedOperationException("not implemented")
@@ -60,6 +64,9 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
     }
     override fun upload(filePath: File, uploadedFilePath: Path, user: CloudBackEncUser): CloudServiceFile? {
         logger.trace{"Google Drive upload called"}
+        if ((user.username == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+            GoogleDriveAuthenticationService.isTest=true
+        }
         val drive = buildDrive(user.username) ?: return null
         val driveFile = com.google.api.services.drive.model.File()
         driveFile.name = uploadedFilePath.fileName.toString()
@@ -78,6 +85,9 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
 
     override fun list(dirPath: String, user: CloudBackEncUser): List<CloudServiceFile> {
         logger.info{"Google Drive list called"}
+        if ((user.username == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+            GoogleDriveAuthenticationService.isTest=true
+        }
         //TODO implement
         throw UnsupportedOperationException("not implemented")
 
@@ -85,12 +95,18 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
 
     override fun download(filePath: String, user: CloudBackEncUser): InputStream {
         logger.info{"Google Drive download called"}
+        if ((user.username == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+            GoogleDriveAuthenticationService.isTest=true
+        }
         //TODO implement
         throw UnsupportedOperationException("not implemented")
     }
 
     override fun availableSpace(user: CloudBackEncUser): Long {
         //TODO implement
+        if ((user.username == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+            GoogleDriveAuthenticationService.isTest=true
+        }
         throw UnsupportedOperationException("not implemented")
     }
 }

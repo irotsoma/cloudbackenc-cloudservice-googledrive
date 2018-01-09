@@ -28,7 +28,10 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.drive.DriveScopes
 import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.*
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthenticationRefreshListener
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthenticationService
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceException
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceUser
 import mu.KLogging
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -53,17 +56,19 @@ import java.util.*
 class GoogleDriveAuthenticationService(extensionUuid: UUID) : CloudServiceAuthenticationService(extensionUuid) {
 
     override var cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener? = null
-
     /**kotlin-logging implementation*/
     companion object: KLogging() {
         val credentialStorageLocation = File(System.getProperty("user.home"), ".credentials/cloudbackenc/googledrive")
+        var isTest = false
         private val googleOauthRevokeUrl = "https://accounts.google.com/o/oauth2/revoke"
         fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?,extensionUuid: UUID): GoogleAuthorizationCodeFlow {
             //make sure client ID and client secret are populated, otherwise the developer (probably you) forgot to add them
             if (GoogleDriveSettings.clientId == null || GoogleDriveSettings.clientSecret == null) {
                 throw CloudServiceException("Google Drive client ID or secret is null.  This must be populated in the GoogleDriveSettings before building the extension.")
             }
-
+            if ((GoogleDriveSettings.clientId == "" || GoogleDriveSettings.clientSecret == "") && !isTest){
+                throw CloudServiceException("Google Drive client ID or secret is null.  This must be populated in the GoogleDriveSettings before building the extension.")
+            }
             val jsonFactory = JacksonFactory.getDefaultInstance()
             val transport = GoogleNetHttpTransport.newTrustedTransport()
             val secretData = GoogleClientSecrets.Details()
@@ -86,29 +91,34 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID) : CloudServiceAuthen
 
     override fun isLoggedIn(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): Boolean {
         logger.info{"Google Drive isLoggedIn"}
+        if ((cloudBackEncUser.username == "test") || (cloudBackEncUser.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+            isTest=true
+        }
         //TODO: Implement this
         return false
     }
     override fun login(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): CloudServiceUser.STATE {
         logger.info{"Google Drive Login"}
-        //for integration testing
         if ((cloudBackEncUser.username == "test") || (cloudBackEncUser.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+            isTest=true
+        }
+        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid)
+        //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
+        val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver(), extensionUuid)
+        //for integration testing
+        if (isTest){
             return CloudServiceUser.STATE.TEST
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
         if (cloudServiceUser.serviceUuid != extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
-        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid)
-
-        //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
-        val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver(), extensionUuid)
         try {
             val response = handler.authorize(cloudBackEncUser.username, URL(cloudServiceUser.authorizationCallbackURL))
-            if (response?.accessToken != null) {
-                return CloudServiceUser.STATE.LOGGED_IN
+            return if (response?.accessToken != null) {
+                CloudServiceUser.STATE.LOGGED_IN
             } else {
-                return CloudServiceUser.STATE.ERROR
+                CloudServiceUser.STATE.ERROR
             }
         }catch (e: IOException){
             throw CloudServiceException("Error during authorization process: ${e.message}", e)
@@ -116,6 +126,9 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID) : CloudServiceAuthen
     }
     override fun logout(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): CloudServiceUser.STATE {
         logger.info{"Google Drive Logout"}
+        if ((cloudBackEncUser.username == "test") || (cloudBackEncUser.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+            isTest=true
+        }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
         if (cloudServiceUser.serviceUuid != extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")

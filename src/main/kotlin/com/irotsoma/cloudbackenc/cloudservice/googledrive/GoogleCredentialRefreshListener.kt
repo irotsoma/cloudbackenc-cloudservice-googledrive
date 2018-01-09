@@ -22,8 +22,8 @@ import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.auth.oauth2.CredentialRefreshListener
 import com.google.api.client.auth.oauth2.TokenErrorResponse
 import com.google.api.client.auth.oauth2.TokenResponse
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceAuthenticationRefreshListener
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.CloudServiceUser
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthenticationRefreshListener
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceUser
 import java.util.*
 
 /**

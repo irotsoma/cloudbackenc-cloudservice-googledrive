@@ -18,7 +18,9 @@
  */
 package com.irotsoma.cloudbackenc.cloudservice.googledrive
 
-import com.irotsoma.cloudbackenc.common.cloudservicesserviceinterface.*
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthenticationService
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceFactory
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceFileIOService
 
 
 /**
