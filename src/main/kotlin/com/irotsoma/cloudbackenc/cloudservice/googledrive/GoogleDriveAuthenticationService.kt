@@ -110,7 +110,7 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID) : CloudServiceAuthen
             return CloudServiceUser.STATE.TEST
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
-        if (cloudServiceUser.serviceUuid != extensionUuid.toString()){
+        if (cloudServiceUser.extensionUuid != extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
         try {
@@ -130,7 +130,7 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID) : CloudServiceAuthen
             isTest=true
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
-        if (cloudServiceUser.serviceUuid != extensionUuid.toString()){
+        if (cloudServiceUser.extensionUuid != extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
         val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid)

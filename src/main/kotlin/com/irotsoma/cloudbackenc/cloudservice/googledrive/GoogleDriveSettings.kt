@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017  Irotsoma, LLC
+ * Copyright (C) 2016  Irotsoma, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -10,6 +10,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
@@ -32,8 +33,8 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
  */
 class GoogleDriveSettings{
     companion object {
-        val clientId: String? = ""
-        val clientSecret: String? = ""
+        val clientId: String? = "1057170801984-th4b6lnnqi6pphdi269g7mff7qqftui7.apps.googleusercontent.com"
+        val clientSecret: String? = "zmqIJhgYN-6Oep_Sx6w--4Sh"
         val authUri :String? = "https://accounts.google.com/o/oauth2/auth"
         val tokenUri: String? = "https://accounts.google.com/o/oauth2/token"
         val redirectUris: List<String> = listOf("urn:ietf:wg:oauth:2.0:oob","http://localhost")
