@@ -144,7 +144,7 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID) : CloudServiceAuthen
         val url = urlBuilder.build().encode().toUri()
         try {
             val result = restTemplate.postForEntity(url, request, String::class.java)
-            logger.debug { "Oauth revoke response code:  ${result.statusCode} -- ${result.statusCode?.name}" }
+            logger.debug { "Oauth revoke response code:  ${result.statusCode} -- ${result.statusCode.name}" }
             logger.debug { "Oauth revoke response body:  ${result.body}" }
         } catch(e: HttpClientErrorException){
             logger.warn{"Error revoking access token:  ${e.message}"}
@@ -156,7 +156,7 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID) : CloudServiceAuthen
             val url2 = urlBuilder2.build().encode().toUri()
             try {
                 val result = restTemplate.postForEntity(url2, request, String::class.java)
-                logger.debug { "Oauth revoke response code:  ${result.statusCode} -- ${result.statusCode?.name}" }
+                logger.debug { "Oauth revoke response code:  ${result.statusCode} -- ${result.statusCode.name}" }
                 logger.debug { "Oauth revoke response body:  ${result.body}" }
             } catch(e: HttpClientErrorException){
                 logger.warn{"Error revoking refresh token:  ${e.message}"}

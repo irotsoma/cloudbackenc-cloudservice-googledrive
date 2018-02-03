@@ -65,7 +65,7 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
             requestHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             val httpEntity = HttpEntity<CloudServiceCallbackURL>(CloudServiceCallbackURL(extensionUuid.toString(), currentAuthorizationURL.toString()), requestHeaders)
             val callResponse = restTemplate.postForEntity(authorizationCallbackUrl.toString(), httpEntity, CloudServiceCallbackURL::class.java)
-            logger.debug{"Callback response:  ${callResponse.statusCode} -- ${callResponse.statusCode?.name}"}
+            logger.debug{"Callback response:  ${callResponse.statusCode} -- ${callResponse.statusCode.name}"}
             if (callResponse.statusCode != HttpStatus.ACCEPTED){
                 throw CloudServiceException("Error accessing call back address for authorization URL:  ${callResponse.statusCode} -- ${callResponse.statusCode.name}")
             }

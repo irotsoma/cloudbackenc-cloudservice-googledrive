@@ -16,13 +16,13 @@
 
 buildscript {
     ext.commonVersion = '0.3-SNAPSHOT'
-    ext.kotlinVersion = '1.2.10'
+    ext.kotlinVersion = '1.2.21'
     ext.dokkaVersion = '0.9.14'
-    ext.springWebVersion ='4.3.9.RELEASE'
+    ext.springWebVersion ='5.0.3.RELEASE'
     ext.googleApiVersion = '1.23.0'
-    ext.googleDriveApiVersion = 'v3-rev87-1.23.0'
+    ext.googleDriveApiVersion = 'v3-rev101-1.23.0'
     ext.junitVersion = '4.12'
-    ext.kotlinLoggingVersion = '1.4.6'
+    ext.kotlinLoggingVersion = '1.5.3'
 
     repositories {
         mavenCentral()
