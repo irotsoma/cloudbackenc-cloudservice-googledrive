@@ -4,3 +4,4 @@ build/
 *.iml
 logs/
 secret/
+/src/test/resources/TestCredentials.properties

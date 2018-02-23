@@ -36,10 +36,11 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
     /** kotlin-logging implementation*/
     companion object: KLogging() {
         const val PARENT_DIRECTORY = "CloudBackEncFiles"
-        const val MIME_TYPE = "application/octet-stream"
+        const val FILE_MIME_TYPE = "application/octet-stream"
+        const val FOLDER_MIME_TYPE = "application/vnd.google-apps.folder"
     }
 
-    val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null, extensionUuid)
+    private val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null, extensionUuid)
 
     fun buildDrive(userId: String): Drive? {
         val credential = flow.loadCredential(userId)
@@ -50,16 +51,17 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
         return Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), credential).build()
     }
 
-    override fun delete(targetPath: String, user: CloudBackEncUser): Boolean {
-        logger.info{"Google Drive delete called"}
+    override fun delete(targetFile: CloudServiceFile, user: CloudBackEncUser): Boolean {
+        logger.trace{"Google Drive delete called"}
         if ((user.username == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
             GoogleDriveAuthenticationService.isTest=true
         }
-        //TODO implement
         val drive = buildDrive(user.username) ?: return false
+        if (targetFile.fileId != null){
+            drive.files().delete(targetFile.fileId).execute()
+            return true
+        }
         throw UnsupportedOperationException("not implemented")
-
-
 
     }
     override fun upload(filePath: File, uploadedFilePath: Path, user: CloudBackEncUser): CloudServiceFile? {
@@ -75,26 +77,47 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
         for (x in 0..uploadedFilePath.nameCount-2){
             parents.add(uploadedFilePath.getName(x).toString())
         }
-        driveFile.parents = parents
-        driveFile.mimeType = MIME_TYPE
-        val fileContent = FileContent(MIME_TYPE, filePath)
+        //create an object holding all of the ids for all parent folders creating new ones if needed
+        for (folder in parents){
+            val file = drive.files().list().setSpaces("appDataFolder").setQ("mimeType = $FOLDER_MIME_TYPE and name = $folder").execute()
+            if (file.files.isEmpty()){
+                val newFolderMetadata = com.google.api.services.drive.model.File()
+                newFolderMetadata.name=folder
+                newFolderMetadata.mimeType = FOLDER_MIME_TYPE
+                val newFolder = drive.files().create(newFolderMetadata).setFields("id").execute()
+                driveFile.parents.add(newFolder.id)
+            } else {
+                driveFile.parents.add(file.files[0].id)
+            }
+        }
+        driveFile.mimeType = FILE_MIME_TYPE
+        val fileContent = FileContent(FILE_MIME_TYPE, filePath)
         val uploadedFile = drive.files().create(driveFile,fileContent).setFields("id").execute()
 
         return CloudServiceFile(uploadedFile.name, false, !uploadedFile.capabilities.canEdit, uploadedFile.capabilities.canCopy, uploadedFile.parents.toString(), uploadedFile.id, uploadedFile.size.toLong())
     }
 
-    override fun list(dirPath: String, user: CloudBackEncUser): List<CloudServiceFile> {
-        logger.info{"Google Drive list called"}
+    override fun list(query: String, user: CloudBackEncUser): List<CloudServiceFile> {
+        logger.trace{"Google Drive list called"}
         if ((user.username == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
             GoogleDriveAuthenticationService.isTest=true
         }
-        //TODO implement
-        throw UnsupportedOperationException("not implemented")
-
+        val drive = buildDrive(user.username) ?: return emptyList()
+        val fileList = drive.files().list().setSpaces("appDataFolder").setQ("fullText contains '$query'").execute()
+        val cloudServiceFileList = ArrayList<CloudServiceFile>()
+        for (file in fileList.files) {
+            val filePath = StringBuilder()
+            for (parentId in file.parents){
+                filePath.append(File.pathSeparator)
+                filePath.append(drive.files().get(parentId).execute().name)
+            }
+            cloudServiceFileList.add(CloudServiceFile(file.name,file.mimeType == FOLDER_MIME_TYPE, !file.capabilities.canEdit, file.capabilities.canDownload, filePath.toString(), file.id, file.getSize()))
+        }
+        return cloudServiceFileList
     }
 
-    override fun download(filePath: String, user: CloudBackEncUser): InputStream {
-        logger.info{"Google Drive download called"}
+    override fun download(file: CloudServiceFile, user: CloudBackEncUser): InputStream {
+        logger.trace{"Google Drive download called"}
         if ((user.username == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
             GoogleDriveAuthenticationService.isTest=true
         }
@@ -102,11 +125,12 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
         throw UnsupportedOperationException("not implemented")
     }
 
-    override fun availableSpace(user: CloudBackEncUser): Long {
-        //TODO implement
+    override fun availableSpace(user: CloudBackEncUser): Long? {
+        logger.trace{"Google Drive available space called"}
         if ((user.username == "test") || (user.roles.contains(CloudBackEncRoles.ROLE_TEST))){
             GoogleDriveAuthenticationService.isTest=true
         }
-        throw UnsupportedOperationException("not implemented")
+        val drive = buildDrive(user.username) ?: return null
+        return drive.about().get().execute().storageQuota.limit ?: -1
     }
 }

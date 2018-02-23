@@ -21,7 +21,7 @@ buildscript {
     ext.springWebVersion ='5.0.3.RELEASE'
     ext.googleApiVersion = '1.23.0'
     ext.googleDriveApiVersion = 'v3-rev101-1.23.0'
-    ext.junitVersion = '4.12'
+    ext.junitVersion = '5.1.0-RC1'
     ext.kotlinLoggingVersion = '1.5.3'
 
     repositories {
@@ -66,7 +66,8 @@ dependencies {
     compile "com.google.oauth-client:google-oauth-client-jetty:$googleApiVersion"
     //logging
     compile "io.github.microutils:kotlin-logging:$kotlinLoggingVersion"
-    testCompile "junit:junit:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    //testCompile("org.junit.platform:junit-platform-runner:1.1.0-RC1")
 }
 
 apply plugin: 'signing'
@@ -95,6 +96,7 @@ sourceSets {
             srcDir "$buildDir/license-reports/"
         }
     }
+    test.java.srcDir 'src/test/kotlin'
 }
 
 //javadoc stuff for Kotlin

@@ -91,22 +91,23 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID) : CloudServiceAuthen
 
     override fun isLoggedIn(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): Boolean {
         logger.info{"Google Drive isLoggedIn"}
-        if ((cloudBackEncUser.username == "test") || (cloudBackEncUser.roles.contains(CloudBackEncRoles.ROLE_TEST))){
-            isTest=true
+        val flow = buildGoogleAuthorizationFlow(null, extensionUuid)
+        val credential = flow.loadCredential(cloudServiceUser.username)
+        if (credential == null || (credential.refreshToken == null && credential.expiresInSeconds < 60)) {
+            return false
         }
-        //TODO: Implement this
         return false
     }
     override fun login(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): CloudServiceUser.STATE {
         logger.info{"Google Drive Login"}
-        if ((cloudBackEncUser.username == "test") || (cloudBackEncUser.roles.contains(CloudBackEncRoles.ROLE_TEST))){
+        if ((cloudServiceUser.username == "test") && (cloudBackEncUser.roles.contains(CloudBackEncRoles.ROLE_TEST))){
             isTest=true
         }
         val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid)
         //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
         val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver(), extensionUuid)
         //for integration testing
-        if (isTest){
+        if (isTest ){
             return CloudServiceUser.STATE.TEST
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.

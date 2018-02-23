@@ -19,12 +19,15 @@ package com.irotsoma.cloudbackenc.cloudservice.googledrive
 import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
 import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceUser
-import org.junit.Test
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
+import java.util.*
 
 /**
  * @author Justin Zak
  */
-class GoogleDriveAuthenticationServiceTest {
+public class GoogleDriveAuthenticationServiceTest {
+
     @Test
     fun login() {
 
@@ -34,8 +37,21 @@ class GoogleDriveAuthenticationServiceTest {
     }
 
     @Test
-    fun logoff() {
+    @Disabled
+    fun realCredentialsLogin() {
+        //TODO: find a way to set the credentials in the current user directory
+        val factory = GoogleDriveCloudServiceFactory()
+        val test = this.javaClass.classLoader.getResource("TestCredentials.properties")
 
+        val properties = Properties()
+        properties.load(this.javaClass.classLoader.getResourceAsStream("TestCredentials.properties"))
+
+        val testUser = properties.getProperty("username")
+        if (testUser != null) {
+            if (factory.authenticationService.isLoggedIn(CloudServiceUser("test",null,"1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375",null), CloudBackEncUser("test",CloudBackEncUser.PASSWORD_MASKED,null,true,listOf(CloudBackEncRoles.ROLE_TEST)))){
+                assert(true)
+            }
+        }
+        assert(false)
     }
-
 }
