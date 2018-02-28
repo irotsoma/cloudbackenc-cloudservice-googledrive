@@ -42,7 +42,7 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
 
     private val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null, extensionUuid)
 
-    fun buildDrive(userId: String): Drive? {
+    private fun buildDrive(userId: String): Drive? {
         val credential = flow.loadCredential(userId)
         if (credential == null || (credential.refreshToken == null && credential.expiresInSeconds < 60)) {
             logger.info{"Credentials are invalid or about to expire.  New Login Required."}
@@ -94,7 +94,7 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
         val fileContent = FileContent(FILE_MIME_TYPE, filePath)
         val uploadedFile = drive.files().create(driveFile,fileContent).setFields("id").execute()
 
-        return CloudServiceFile(uploadedFile.name, false, !uploadedFile.capabilities.canEdit, uploadedFile.capabilities.canCopy, uploadedFile.parents.toString(), uploadedFile.id, uploadedFile.size.toLong())
+        return CloudServiceFile(uploadedFile.name, false, !uploadedFile.capabilities.canEdit, uploadedFile.capabilities.canCopy, uploadedFile.parents.toString(), uploadedFile.id, uploadedFile.size.toLong(), null)
     }
 
     override fun list(query: String, user: CloudBackEncUser): List<CloudServiceFile> {
@@ -111,7 +111,7 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
                 filePath.append(File.pathSeparator)
                 filePath.append(drive.files().get(parentId).execute().name)
             }
-            cloudServiceFileList.add(CloudServiceFile(file.name,file.mimeType == FOLDER_MIME_TYPE, !file.capabilities.canEdit, file.capabilities.canDownload, filePath.toString(), file.id, file.getSize()))
+            cloudServiceFileList.add(CloudServiceFile(file.name,file.mimeType == FOLDER_MIME_TYPE, !file.capabilities.canEdit, file.capabilities.canDownload, filePath.toString(), file.id, file.getSize(), null))
         }
         return cloudServiceFileList
     }
@@ -131,6 +131,17 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
             GoogleDriveAuthenticationService.isTest=true
         }
         val drive = buildDrive(user.username) ?: return null
-        return drive.about().get().execute().storageQuota.limit ?: -1
+        val storageQuota = drive.about().get().execute().storageQuota
+        //missing limit means unlimited storage
+        if (storageQuota.limit == null){
+            return -1
+        }
+        val available = storageQuota.limit - storageQuota.usage
+        //if user is over limit return 0 as amount available
+        return if (available < 0){
+            0
+        } else {
+            available
+        }
     }
 }

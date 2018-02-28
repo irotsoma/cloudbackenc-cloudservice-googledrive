@@ -28,6 +28,9 @@ import java.util.*
  */
 public class GoogleDriveAuthenticationServiceTest {
 
+
+    //TODO: change build to not include secrets during test build and create test to make sure GoogleDriveSettings doesn't have the credentials in it
+
     @Test
     fun login() {
 
