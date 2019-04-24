@@ -1,4 +1,8 @@
-# cloudbackenc-cloudservice-googledrive [![CircleCI](https://circleci.com/gh/irotsoma/cloudservice-googledrive.svg?style=svg)](https://circleci.com/gh/irotsoma/cloudservice-googledrive)
+# cloudbackenc-cloudservice-googledrive
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ead0c3454d3048389d415a1b95664315)](https://www.codacy.com/app/irotsoma/cloudbackenc-cloudservice-googledrive?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=irotsoma/cloudbackenc-cloudservice-googledrive&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/irotsoma/cloudbackenc-cloudservice-googledrive.svg?branch=master)](https://travis-ci.org/irotsoma/cloudbackenc-cloudservice-googledrive)
+
 
 Google Drive implementation of cloud services for CloudBackEnc
 
