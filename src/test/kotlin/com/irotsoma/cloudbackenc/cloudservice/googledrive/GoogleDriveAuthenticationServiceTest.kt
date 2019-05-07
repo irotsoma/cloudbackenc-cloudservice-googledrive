@@ -27,7 +27,7 @@ import java.util.*
 /**
  * @author Justin Zak
  */
-public class GoogleDriveAuthenticationServiceTest {
+class GoogleDriveAuthenticationServiceTest {
 
 
     //TODO: change build to not include secrets during test build and create test to make sure GoogleDriveSettings doesn't have the credentials in it
@@ -45,7 +45,7 @@ public class GoogleDriveAuthenticationServiceTest {
     fun realCredentialsLogin() {
         //TODO: find a way to set the credentials in the current user directory
         val factory = GoogleDriveCloudServiceFactory()
-        val test = this.javaClass.classLoader.getResource("TestCredentials.properties")
+        //val test = this.javaClass.classLoader.getResource("TestCredentials.properties")
 
         val properties = Properties()
         properties.load(this.javaClass.classLoader.getResourceAsStream("TestCredentials.properties"))

@@ -31,7 +31,7 @@ import java.util.*
  *
  * @author Justin Zak
  */
-class GoogleCredentialRefreshListener(val changeListener:CloudServiceAuthenticationRefreshListener?, val extensionUuid: UUID) : CredentialRefreshListener {
+class GoogleCredentialRefreshListener(private val changeListener:CloudServiceAuthenticationRefreshListener?, private val extensionUuid: UUID) : CredentialRefreshListener {
 
     override fun onTokenErrorResponse(credential: Credential?, tokenErrorResponse: TokenErrorResponse?) {
         changeListener?.onChange(extensionUuid, CloudServiceUser.STATE.ERROR)

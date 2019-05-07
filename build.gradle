@@ -16,7 +16,7 @@
 
 buildscript {
     ext.commonVersion = '0.4-SNAPSHOT'
-    ext.kotlinVersion = '1.3.30'
+    ext.kotlinVersion = '1.3.31'
     ext.dokkaVersion = '0.9.17'
     ext.springWebVersion ='5.1.6.RELEASE'
     ext.googleApiVersion = '1.28.0'
@@ -42,7 +42,6 @@ plugins {
 
 group 'com.irotsoma.cloudbackenc.cloudservice'
 version '0.4-SNAPSHOT'
-def secretFolder = "$rootDir/../secret"
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
@@ -150,27 +149,28 @@ copyLicenseReports.mustRunAfter 'downloadLicenses'
 //This section will copy the GoogleDriveSettings.kt file from the /secret folder before build and then replace it with
 //the original afterward.  This allows for putting the actual api key and secret in a separate repository and using it
 //only at compile time. Adjust the variables at the top to change locations and file name.
-def packageLocation = 'src/main/kotlin/com/irotsoma/cloudbackenc/cloudservice/googledrive/'
-def fileName = 'GoogleDriveSettings.kt'
-def tempFolder = "$buildDir/tmp"
+//def secretFolder = "$rootDir/../secret"
+//def packageLocation = 'src/main/kotlin/com/irotsoma/cloudbackenc/cloudservice/googledrive/'
+//def fileName = 'GoogleDriveSettings.kt'
+//def tempFolder = "$buildDir/tmp"
 
-task copySettingsToTemp(type: Copy){
-    from packageLocation
-    include fileName
-    into tempFolder
-}
-task copySecretToSource(type: Copy){
-    from secretFolder
-    include fileName
-    into packageLocation
-}
-task copyBlankSettingsToSource(type: Copy){
-    from tempFolder
-    include fileName
-    into packageLocation
-}
-assemble.dependsOn 'copySettingsToTemp'
-assemble.dependsOn 'copySecretToSource'
-copySecretToSource.mustRunAfter 'copySettingsToTemp'
-
-assemble.finalizedBy copyBlankSettingsToSource
+//task copySettingsToTemp(type: Copy){
+//    from packageLocation
+//    include fileName
+//    into tempFolder
+//}
+//task copySecretToSource(type: Copy){
+//    from secretFolder
+//    include fileName
+//    into packageLocation
+//}
+//task copyBlankSettingsToSource(type: Copy){
+//    from tempFolder
+//    include fileName
+//    into packageLocation
+//}
+//assemble.dependsOn 'copySettingsToTemp'
+//assemble.dependsOn 'copySecretToSource'
+//copySecretToSource.mustRunAfter 'copySettingsToTemp'
+//
+//assemble.finalizedBy copyBlankSettingsToSource

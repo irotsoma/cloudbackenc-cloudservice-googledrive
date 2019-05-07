@@ -1,0 +1,13 @@
+{
+  "extensionUuid": "1d3cb21f-5b88-4b3c-8cb8-1afddf1ff375",
+  "extensionName": "Google Drive",
+  "packageName": "com.irotsoma.cloudbackenc.cloudservice.googledrive",
+  "factoryClass": "GoogleDriveCloudServiceFactory",
+  "requiresUsername": false,
+  "requiresPassword": false,
+  "releaseVersion" : 1,
+  "additionalSettings": {
+    "clientId": "test",
+    "clientSecret": "test"
+  }
+}
