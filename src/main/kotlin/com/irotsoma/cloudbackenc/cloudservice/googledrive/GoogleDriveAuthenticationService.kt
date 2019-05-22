@@ -58,10 +58,9 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID, private val addition
     override var cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener? = null
     /**kotlin-logging implementation*/
     companion object: KLogging() {
-        val additionalSettings = HashMap<String,String>()
         val credentialStorageLocation = File(System.getProperty("user.home"), ".credentials/cloudbackenc/googledrive")
         private val googleOauthRevokeUrl = "https://accounts.google.com/o/oauth2/revoke"
-        fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?,extensionUuid: UUID): GoogleAuthorizationCodeFlow {
+        fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?,extensionUuid: UUID, additionalSettings: Map<String, String>): GoogleAuthorizationCodeFlow {
             val jsonSecretsFile = if (!additionalSettings["clientSecretFilePath"].isNullOrBlank()) {
                 File(additionalSettings["clientSecretFilePath"])
             } else {
@@ -92,13 +91,10 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID, private val addition
             return GoogleAuthorizationCodeFlow.Builder(transport, jsonFactory, clientSecrets, listOf(DriveScopes.DRIVE_APPDATA)).setDataStoreFactory(dataStoreFactory).setAccessType("offline").addRefreshListener(GoogleCredentialRefreshListener(cloudServiceAuthenticationRefreshListener, extensionUuid)).build()
         }
     }
-    init{
-        Companion.additionalSettings.putAll(additionalSettings)
-    }
 
     override fun isLoggedIn(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): Boolean {
         logger.trace{"Google Drive isLoggedIn"}
-        val flow = buildGoogleAuthorizationFlow(null, extensionUuid)
+        val flow = buildGoogleAuthorizationFlow(null, extensionUuid, additionalSettings)
         val credential = flow.loadCredential(cloudServiceUser.username)
         if (credential == null || (credential.refreshToken == null && credential.expiresInSeconds < 60)) {
             return false
@@ -107,7 +103,7 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID, private val addition
     }
     override fun login(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): CloudServiceUser.STATE {
         logger.trace{"Google Drive Login"}
-        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid)
+        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener, extensionUuid, additionalSettings)
         //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
         val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver(), extensionUuid)
         //for integration testing just return a test state
@@ -135,7 +131,7 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID, private val addition
         if (cloudServiceUser.extensionUuid != extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
-        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid)
+        val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid, additionalSettings)
         val credential = flow.loadCredential(cloudBackEncUser.username)
         val restTemplate = RestTemplate()
         val headers = HttpHeaders()

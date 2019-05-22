@@ -31,6 +31,6 @@ import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceFileIOService
 
 class GoogleDriveCloudServiceFactory : CloudServiceFactory() {
     override val authenticationService: CloudServiceAuthenticationService = GoogleDriveAuthenticationService(extensionUuid, additionalSettings)
-    override val cloudServiceFileIOService: CloudServiceFileIOService = GoogleDriveFileIOService(extensionUuid)
+    override val cloudServiceFileIOService: CloudServiceFileIOService = GoogleDriveFileIOService(extensionUuid, additionalSettings)
 
 }

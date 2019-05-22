@@ -31,7 +31,7 @@ import java.io.InputStream
 import java.nio.file.Path
 import java.util.*
 
-class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(extensionUuid) {
+class GoogleDriveFileIOService(extensionUuid: UUID, private val additionalSettings: Map<String, String>) : CloudServiceFileIOService(extensionUuid) {
     /** kotlin-logging implementation*/
     companion object: KLogging() {
         const val PARENT_DIRECTORY = "CloudBackEncFiles"
@@ -39,9 +39,8 @@ class GoogleDriveFileIOService(extensionUuid: UUID) : CloudServiceFileIOService(
         const val FOLDER_MIME_TYPE = "application/vnd.google-apps.folder"
     }
 
-    private val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null, extensionUuid)
-
     private fun buildDrive(userId: String): Drive? {
+        val flow = GoogleDriveAuthenticationService.buildGoogleAuthorizationFlow(null, extensionUuid, additionalSettings)
         val credential = flow.loadCredential(userId)
         if (credential == null || (credential.refreshToken == null && credential.expiresInSeconds < 60)) {
             logger.info{"Credentials are invalid or about to expire.  New Login Required."}
