@@ -57,7 +57,7 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID, private val addition
 
     override var cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener? = null
     /**kotlin-logging implementation*/
-    companion object: KLogging() {
+    private companion object: KLogging() {
         val credentialStorageLocation = File(System.getProperty("user.home"), ".credentials/cloudbackenc/googledrive")
         private val googleOauthRevokeUrl = "https://accounts.google.com/o/oauth2/revoke"
         fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?,extensionUuid: UUID, additionalSettings: Map<String, String>): GoogleAuthorizationCodeFlow {

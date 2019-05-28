@@ -44,7 +44,7 @@ import java.util.*
  */
 open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver, var extensionUuid:UUID ) : AuthorizationCodeInstalledApp(flow, receiver) {
     /** kotlin-logging implementation*/
-    companion object: KLogging()
+    private companion object: KLogging()
     /**
      * The url of the calling application that will present the authorization URL to the user.
      */

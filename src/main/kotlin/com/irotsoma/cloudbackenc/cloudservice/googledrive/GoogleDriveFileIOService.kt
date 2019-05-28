@@ -33,7 +33,7 @@ import java.util.*
 
 class GoogleDriveFileIOService(extensionUuid: UUID, private val additionalSettings: Map<String, String>) : CloudServiceFileIOService(extensionUuid) {
     /** kotlin-logging implementation*/
-    companion object: KLogging() {
+    private companion object: KLogging() {
         const val PARENT_DIRECTORY = "CloudBackEncFiles"
         const val FILE_MIME_TYPE = "application/octet-stream"
         const val FOLDER_MIME_TYPE = "application/vnd.google-apps.folder"
