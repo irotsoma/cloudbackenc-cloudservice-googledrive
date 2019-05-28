@@ -39,8 +39,8 @@ import java.util.*
  * Modified AuthorizationCodeInstalledApp class which when an authorization URL is returned, calls the callback URL provided if applicable
  *
  * @author Justin Zak
- * @param flow An [AuthorizationCodeFlow] object to be used by the superclass
- * @param receiver A [VerificationCodeReceiver] object to be used by the superclass
+ * @param flow An AuthorizationCodeFlow object to be used by the superclass
+ * @param receiver A VerificationCodeReceiver object to be used by the superclass
  */
 open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, receiver: VerificationCodeReceiver, var extensionUuid:UUID ) : AuthorizationCodeInstalledApp(flow, receiver) {
     /** kotlin-logging implementation*/

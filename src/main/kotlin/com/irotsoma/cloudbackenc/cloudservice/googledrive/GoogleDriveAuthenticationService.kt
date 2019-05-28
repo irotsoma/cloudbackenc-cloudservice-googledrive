@@ -32,7 +32,7 @@ import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthentication
 import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthenticationService
 import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceException
 import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceUser
-import mu.KLogging
+import mu.KotlinLogging
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -57,9 +57,10 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID, private val addition
 
     override var cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener? = null
     /**kotlin-logging implementation*/
-    private companion object: KLogging() {
-        val credentialStorageLocation = File(System.getProperty("user.home"), ".credentials/cloudbackenc/googledrive")
-        private val googleOauthRevokeUrl = "https://accounts.google.com/o/oauth2/revoke"
+    private val logger = KotlinLogging.logger {}
+    companion object {
+        private val credentialStorageLocation = File(System.getProperty("user.home"), ".credentials/cloudbackenc/googledrive")
+        private const val googleOauthRevokeUrl = "https://accounts.google.com/o/oauth2/revoke"
         fun buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener?,extensionUuid: UUID, additionalSettings: Map<String, String>): GoogleAuthorizationCodeFlow {
             val jsonSecretsFile = if (!additionalSettings["clientSecretFilePath"].isNullOrBlank()) {
                 File(additionalSettings["clientSecretFilePath"])
