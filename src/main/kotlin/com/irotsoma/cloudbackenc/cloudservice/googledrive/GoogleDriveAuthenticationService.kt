@@ -28,10 +28,7 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.drive.DriveScopes
 import com.irotsoma.cloudbackenc.common.CloudBackEncRoles
 import com.irotsoma.cloudbackenc.common.CloudBackEncUser
-import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthenticationRefreshListener
-import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthenticationService
-import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceException
-import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceUser
+import com.irotsoma.cloudbackenc.common.cloudservices.*
 import mu.KotlinLogging
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -44,7 +41,6 @@ import java.io.File
 import java.io.IOException
 import java.net.URL
 import java.util.*
-
 /**
  * Created by irotsoma on 6/19/2016.
  *
@@ -54,7 +50,6 @@ import java.util.*
  */
 
 class GoogleDriveAuthenticationService(extensionUuid: UUID, private val additionalSettings: Map<String,String>) : CloudServiceAuthenticationService(extensionUuid) {
-
     override var cloudServiceAuthenticationRefreshListener: CloudServiceAuthenticationRefreshListener? = null
     /**kotlin-logging implementation*/
     private val logger = KotlinLogging.logger {}
@@ -93,43 +88,56 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID, private val addition
         }
     }
 
-    override fun isLoggedIn(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): Boolean {
+    override fun isLoggedIn(cloudServiceAuthenticationRequest: CloudServiceAuthenticationRequest, cloudBackEncUser: CloudBackEncUser): Boolean {
         logger.trace{"Google Drive isLoggedIn"}
         val flow = buildGoogleAuthorizationFlow(null, extensionUuid, additionalSettings)
-        val credential = flow.loadCredential(cloudServiceUser.username)
+        val credential = flow.loadCredential(cloudServiceAuthenticationRequest.username)
         if (credential == null || (credential.refreshToken == null && credential.expiresInSeconds < 60)) {
             return false
         }
         return false
     }
-    override fun login(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): CloudServiceUser.STATE {
+    override fun login(cloudServiceAuthenticationRequest: CloudServiceAuthenticationRequest, cloudBackEncUser: CloudBackEncUser): CloudServiceAuthenticationResponse {
         logger.trace{"Google Drive Login"}
         val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener, extensionUuid, additionalSettings)
         //use a custom handler that will access the UI thread if the user needs to authorize.  This calls back to an embedded tomcat instance in the UI application.
         val handler = GoogleDriveAuthenticationCodeHandler(flow, LocalServerReceiver(), extensionUuid)
         //for integration testing just return a test state
         if ((cloudBackEncUser.roles.contains(CloudBackEncRoles.ROLE_TEST)) || additionalSettings["clientId"] == "test"){
-            return CloudServiceUser.STATE.TEST
+            return CloudServiceAuthenticationResponse(CloudServiceAuthenticationState.TEST)
         }
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
-        if (cloudServiceUser.extensionUuid != extensionUuid.toString()){
+        if (cloudServiceAuthenticationRequest.extensionUuid != extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
-        try {
-            val response = handler.authorize(cloudBackEncUser.username, URL(cloudServiceUser.authorizationCallbackURL))
-            return if (response?.accessToken != null) {
-                CloudServiceUser.STATE.LOGGED_IN
-            } else {
-                CloudServiceUser.STATE.ERROR
+        if (!cloudServiceAuthenticationRequest.replyWithAuthorizationUrl) {
+            try {
+                val response = handler.authorizeWithCallbackUrl(cloudBackEncUser.username, URL(cloudServiceAuthenticationRequest.authorizationCallbackURL))
+                return if (response?.accessToken != null) {
+                    CloudServiceAuthenticationResponse(CloudServiceAuthenticationState.LOGGED_IN)
+                } else {
+                    CloudServiceAuthenticationResponse(CloudServiceAuthenticationState.ERROR)
+                }
+            } catch (e: IOException) {
+                throw CloudServiceException("Error during authorization process: ${e.message}", e)
             }
-        }catch (e: IOException){
-            throw CloudServiceException("Error during authorization process: ${e.message}", e)
+        } else {
+            try {
+                val response = handler.authorizeReplyWithAuthorizationUri(cloudBackEncUser.username)
+                return if (response != null){
+                    CloudServiceAuthenticationResponse(CloudServiceAuthenticationState.AWAITING_AUTHORIZATION, response)
+                } else {
+                    CloudServiceAuthenticationResponse(CloudServiceAuthenticationState.ERROR)
+                }
+            } catch (e: IOException) {
+                throw CloudServiceException("Error during authorization process: ${e.message}", e)
+            }
         }
     }
-    override fun logout(cloudServiceUser: CloudServiceUser, cloudBackEncUser: CloudBackEncUser): CloudServiceUser.STATE {
+    override fun logout(cloudServiceAuthenticationRequest: CloudServiceAuthenticationRequest, cloudBackEncUser: CloudBackEncUser): CloudServiceAuthenticationResponse {
         logger.trace{"Google Drive Logout"}
         //Verify that the user.serviceUUID is the same as the UUID for the current extension.
-        if (cloudServiceUser.extensionUuid != extensionUuid.toString()){
+        if (cloudServiceAuthenticationRequest.extensionUuid != extensionUuid.toString()){
             throw CloudServiceException("The user object is invalid for this extension or the service UUID is incorrect.")
         }
         val flow = buildGoogleAuthorizationFlow(cloudServiceAuthenticationRefreshListener,extensionUuid, additionalSettings)
@@ -164,7 +172,7 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID, private val addition
             }
         }
         flow.credentialDataStore?.delete(cloudBackEncUser.username)
-        cloudServiceAuthenticationRefreshListener?.onChange(extensionUuid,CloudServiceUser.STATE.LOGGED_OUT)
-        return CloudServiceUser.STATE.LOGGED_OUT
+        cloudServiceAuthenticationRefreshListener?.onChange(extensionUuid, CloudServiceAuthenticationState.LOGGED_OUT)
+        return CloudServiceAuthenticationResponse(CloudServiceAuthenticationState.LOGGED_OUT)
     }
 }

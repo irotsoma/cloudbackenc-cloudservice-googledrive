@@ -23,7 +23,7 @@ import com.google.api.client.auth.oauth2.CredentialRefreshListener
 import com.google.api.client.auth.oauth2.TokenErrorResponse
 import com.google.api.client.auth.oauth2.TokenResponse
 import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthenticationRefreshListener
-import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceUser
+import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceAuthenticationRequest
 import java.util.*
 
 /**
@@ -34,14 +34,14 @@ import java.util.*
 class GoogleCredentialRefreshListener(private val changeListener:CloudServiceAuthenticationRefreshListener?, private val extensionUuid: UUID) : CredentialRefreshListener {
 
     override fun onTokenErrorResponse(credential: Credential?, tokenErrorResponse: TokenErrorResponse?) {
-        changeListener?.onChange(extensionUuid, CloudServiceUser.STATE.ERROR)
+        changeListener?.onChange(extensionUuid, CloudServiceAuthenticationState.ERROR)
     }
 
     override fun onTokenResponse(credential: Credential?, tokenResponse: TokenResponse?) {
         if (!tokenResponse?.accessToken.isNullOrEmpty()) {
-            changeListener?.onChange(extensionUuid, CloudServiceUser.STATE.LOGGED_IN)
+            changeListener?.onChange(extensionUuid, CloudServiceAuthenticationState.LOGGED_IN)
         } else {
-            changeListener?.onChange(extensionUuid, CloudServiceUser.STATE.LOGGED_OUT)
+            changeListener?.onChange(extensionUuid, CloudServiceAuthenticationState.LOGGED_OUT)
         }
     }
 }

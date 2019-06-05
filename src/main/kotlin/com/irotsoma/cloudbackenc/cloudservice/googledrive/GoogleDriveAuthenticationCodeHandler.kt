@@ -25,6 +25,9 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver
 import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceCallbackURL
 import com.irotsoma.cloudbackenc.common.cloudservices.CloudServiceException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import mu.KLogging
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -32,6 +35,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestTemplate
 import java.io.IOException
+import java.net.URI
 import java.net.URL
 import java.util.*
 
@@ -48,8 +52,14 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
     /**
      * The url of the calling application that will present the authorization URL to the user.
      */
-    var authorizationCallbackUrl: URL? = null
+    private var authorizationCallbackUrl: URL? = null
+    /**
+     * Flag to prompt system to immediately reply with the authorization URI and continue asynchronously.
+     */
+    private var respondWithAuthorizationUri: Boolean = false
 
+    private var redirectUri: String? = null
+    private var authorizationUrl: AuthorizationCodeRequestUrl? = null
     /**
      * If there is both an authorization URL and a callback URL then call the callback service rather than trying to open a local web browser or sending to System.out
      *
@@ -69,7 +79,7 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
             if (callResponse.statusCode != HttpStatus.ACCEPTED){
                 throw CloudServiceException("Error accessing call back address for authorization URL:  ${callResponse.statusCode} -- ${callResponse.statusCode.name}")
             }
-        } else {
+        } else if (!respondWithAuthorizationUri) {
             super.onAuthorization(authorizationUrl)
         }
     }
@@ -80,21 +90,35 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
      * @param userId The user ID for the CloudBackEnc user
      * @param authorizationCallbackUrl The callback URL that will be used if the authorize call requires the user to navigate to an external site to finish the authorization process
      */
-    fun authorize(userId:String, authorizationCallbackUrl: URL?) : Credential?{
+    fun authorizeWithCallbackUrl(userId:String, authorizationCallbackUrl: URL?) : Credential?{
         this.authorizationCallbackUrl = authorizationCallbackUrl
-        return authorize(userId)
+        val credential = flow.loadCredential(userId)
+        //if the credential is present and either it has a refresh token or it expires in more than 5 minutes then use the existing credential
+        return if (credential != null && (credential.refreshToken != null || credential.expiresInSeconds > 360)) {
+            credential
+        } else {
+            redirectUri = receiver.redirectUri
+            authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectUri)
+            authorize(userId)
+        }
+    }
+    fun authorizeReplyWithAuthorizationUri(userId:String): URI? {
+        val credential = flow.loadCredential(userId)
+        //if the credential is present and either it has a refresh token or it expires in more than 5 minutes then use the existing credential
+        if (credential != null && (credential.refreshToken != null || credential.expiresInSeconds > 360)) {
+            return null
+        }
+        this.respondWithAuthorizationUri = true
+        redirectUri = receiver.redirectUri
+        authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectUri)
+        GlobalScope.launch(Dispatchers.IO) {
+            authorize(userId)
+        }
+        return URI.create(redirectUri)
     }
 
     override fun authorize(userId:String):  Credential? {
         try {
-            val credential = flow.loadCredential(userId)
-            //if the credential is present and either it has a refresh token or it expires in more than 5 minutes then use the existing credential
-            if (credential != null && (credential.refreshToken != null || credential.expiresInSeconds > 360)) {
-                return credential
-            }
-            // open Google authorization page in browser
-            val redirectUri = receiver.redirectUri
-            val authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectUri)
             onAuthorization(authorizationUrl)
             // receive authorization code and exchange it for an access token
             logger.debug{"Waiting for user login."}
