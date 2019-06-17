@@ -171,7 +171,7 @@ class GoogleDriveAuthenticationService(extensionUuid: UUID, private val addition
                 //if both revokes failed then just ignore it and delete the token locally
             }
         }
-        flow.credentialDataStore?.delete(cloudBackEncUser.username)
+        flow.credentialDataStore?.delete(cloudServiceAuthenticationRequest.username)
         cloudServiceAuthenticationRefreshListener?.onChange(extensionUuid, CloudServiceAuthenticationState.LOGGED_OUT)
         return CloudServiceAuthenticationResponse(CloudServiceAuthenticationState.LOGGED_OUT)
     }
