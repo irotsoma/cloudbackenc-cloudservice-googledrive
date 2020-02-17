@@ -81,6 +81,8 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
             }
         } else if (!respondWithAuthorizationUri) {
             super.onAuthorization(authorizationUrl)
+        } else if (respondWithAuthorizationUri) {
+            TODO()
         }
     }
 
