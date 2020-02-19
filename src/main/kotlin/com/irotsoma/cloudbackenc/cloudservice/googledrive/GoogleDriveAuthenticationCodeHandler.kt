@@ -81,8 +81,6 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
             }
         } else if (!respondWithAuthorizationUri) {
             super.onAuthorization(authorizationUrl)
-        } else if (respondWithAuthorizationUri) {
-            TODO()
         }
     }
 
@@ -116,7 +114,7 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
         GlobalScope.launch(Dispatchers.IO) {
             authorize(userId)
         }
-        return URI.create(redirectUri)
+        return authorizationUrl!!.toURI()
     }
 
     override fun authorize(userId:String):  Credential? {
@@ -137,7 +135,10 @@ open class GoogleDriveAuthenticationCodeHandler(flow: AuthorizationCodeFlow, rec
                 flow?.refreshListeners?.forEach{it?.onTokenErrorResponse(null, null)}
             }
             throw e
-        }finally {
+        } catch(e:Exception) {
+            logger.error {e.message}
+            throw e
+        } finally {
             receiver.stop()
         }
     }

@@ -16,14 +16,14 @@
 
 buildscript {
     ext.commonVersion = '0.4-SNAPSHOT'
-    ext.kotlinVersion = '1.3.31'
-    ext.dokkaVersion = '0.9.17'
-    ext.springWebVersion ='5.1.6.RELEASE'
-    ext.googleApiVersion = '1.28.0'
-    ext.googleDriveApiVersion = 'v3-rev20190416-1.28.0'
-    ext.junitVersion = '5.5.0-M1'
-    ext.kotlinLoggingVersion = '1.6.26'
-    ext.kotlinCoroutinesVersion = '1.2.1'
+    ext.kotlinVersion = '1.3.61'
+    ext.dokkaVersion = '0.10.1'
+    ext.springWebVersion ='5.2.3.RELEASE'
+    ext.googleApiVersion = '1.30.3'
+    ext.googleDriveApiVersion = 'v3-rev20191108-1.30.3'
+    ext.junitVersion = '5.6.0'
+    ext.kotlinLoggingVersion = '1.7.8'
+    ext.kotlinCoroutinesVersion = '1.3.3'
 
     repositories {
         mavenCentral()
@@ -48,6 +48,7 @@ apply plugin: 'kotlin'
 
 repositories {
     mavenCentral()
+    jcenter()
     //if the current project is a snapshot then allow using snapshot versions from maven central  Having this as an if prevents accidentally building a release version with snapshot dependencies.
     if (project.version.endsWith('-SNAPSHOT')){
         maven{
@@ -123,6 +124,8 @@ shadowJar{
     dependencies{
         include (dependency('com.google.*:.*'))
         include (dependency('org.mortbay.*:.*'))
+        include (dependency('io.opencensus.*:.*'))
+        include (dependency('io.grpc.*:.*'))
     }
 }
 
@@ -146,33 +149,3 @@ task copyLicenseReports(type: Copy){
 assemble.dependsOn 'downloadLicenses'
 assemble.dependsOn 'copyLicenseReports'
 copyLicenseReports.mustRunAfter 'downloadLicenses'
-
-
-//This section will copy the GoogleDriveSettings.kt file from the /secret folder before build and then replace it with
-//the original afterward.  This allows for putting the actual api key and secret in a separate repository and using it
-//only at compile time. Adjust the variables at the top to change locations and file name.
-//def secretFolder = "$rootDir/../secret"
-//def packageLocation = 'src/main/kotlin/com/irotsoma/cloudbackenc/cloudservice/googledrive/'
-//def fileName = 'GoogleDriveSettings.kt'
-//def tempFolder = "$buildDir/tmp"
-
-//task copySettingsToTemp(type: Copy){
-//    from packageLocation
-//    include fileName
-//    into tempFolder
-//}
-//task copySecretToSource(type: Copy){
-//    from secretFolder
-//    include fileName
-//    into packageLocation
-//}
-//task copyBlankSettingsToSource(type: Copy){
-//    from tempFolder
-//    include fileName
-//    into packageLocation
-//}
-//assemble.dependsOn 'copySettingsToTemp'
-//assemble.dependsOn 'copySecretToSource'
-//copySecretToSource.mustRunAfter 'copySettingsToTemp'
-//
-//assemble.finalizedBy copyBlankSettingsToSource
